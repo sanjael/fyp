@@ -1,0 +1,81 @@
+Request Sequence,Sample ID,Framework,Metric,Prompt Type,Latency,Prompt Tokens,Completion Tokens,Total Tokens,HTTP Status,Cache Status,Retries
+1,Unknown,RAGAS,Answer Relevancy,Question Generation,1.2455012798309326,655,30,685,200,STORE,0
+2,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0005278587341308594,0,0,0,200,HIT,0
+3,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+4,Unknown,Unknown,Unknown,Unknown,1.287839651107788,954,51,1005,200,STORE,0
+5,Unknown,Unknown,Unknown,Unknown,1.2997560501098633,396,70,466,200,STORE,0
+6,Unknown,Unknown,Unknown,Unknown,0.0021948814392089844,0,0,0,200,HIT,0
+7,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+8,Unknown,RAGAS,Faithfulness,Statement Verification,1.8401124477386475,848,203,1051,200,STORE,0
+9,Unknown,RAGAS,Answer Relevancy,Question Generation,1.6585288047790527,795,23,818,200,STORE,0
+10,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+11,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+12,Unknown,Unknown,Unknown,Unknown,1.6388757228851318,371,52,423,200,STORE,0
+13,Unknown,Unknown,Unknown,Unknown,1.6494920253753662,982,41,1023,200,STORE,0
+14,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+15,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+16,Unknown,RAGAS,Faithfulness,Statement Verification,1.654357671737671,987,60,1047,200,STORE,0
+17,Unknown,Unknown,Unknown,Unknown,3.2422502040863037,1017,65,1082,200,STORE,0
+18,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+19,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+20,Unknown,Unknown,Unknown,Unknown,3.1459343433380127,375,55,430,200,STORE,0
+21,Unknown,RAGAS,Answer Relevancy,Question Generation,3.323634386062622,897,19,916,200,STORE,0
+22,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+23,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+24,Unknown,RAGAS,Faithfulness,Statement Verification,2.9310076236724854,1082,133,1215,200,STORE,0
+25,Unknown,RAGAS,Answer Relevancy,Question Generation,4.214170694351196,567,19,586,200,STORE,0
+26,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+27,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+28,Unknown,Unknown,Unknown,Unknown,5.0172812938690186,908,82,990,200,STORE,0
+29,Unknown,Unknown,Unknown,Unknown,0.0005185604095458984,0,0,0,200,HIT,0
+30,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+31,Unknown,Unknown,Unknown,Unknown,2.07725191116333,372,50,422,200,STORE,0
+32,Unknown,RAGAS,Faithfulness,Statement Verification,1.9381070137023926,761,52,813,200,STORE,0
+33,Unknown,Unknown,Unknown,Unknown,0.9680593013763428,373,33,406,200,STORE,0
+34,Unknown,Unknown,Unknown,Unknown,1.3667500019073486,960,61,1021,200,STORE,0
+35,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+36,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+37,Unknown,RAGAS,Faithfulness,Statement Verification,0.9699008464813232,896,94,990,200,STORE,0
+38,Unknown,RAGAS,Answer Relevancy,Question Generation,0.6283533573150635,726,20,746,200,STORE,0
+39,Unknown,RAGAS,Answer Relevancy,Question Generation,0.001016378402709961,0,0,0,200,HIT,0
+40,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+41,Unknown,Unknown,Unknown,Unknown,1.0310685634613037,1012,58,1070,200,STORE,0
+42,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+43,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+44,Unknown,Unknown,Unknown,Unknown,1.0622427463531494,429,108,537,200,STORE,0
+45,Unknown,RAGAS,Faithfulness,Statement Verification,1.6292591094970703,962,299,1261,200,STORE,0
+46,Unknown,RAGAS,Answer Relevancy,Question Generation,0.6740903854370117,766,29,795,200,STORE,0
+47,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+48,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+49,Unknown,RAGAS,Answer Relevancy,Question Generation,1.2097008228302002,659,30,689,200,STORE,0
+50,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+51,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+52,Unknown,Unknown,Unknown,Unknown,0.8614494800567627,390,68,458,200,STORE,0
+53,Unknown,Unknown,Unknown,Unknown,0.8980836868286133,952,48,1000,200,STORE,0
+54,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+55,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+56,Unknown,RAGAS,Faithfulness,Statement Verification,1.0729942321777344,855,156,1011,200,STORE,0
+57,Unknown,Unknown,Unknown,Unknown,0.7814607620239258,1029,69,1098,200,STORE,0
+58,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+59,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+60,Unknown,Unknown,Unknown,Unknown,0.7473349571228027,403,83,486,200,STORE,0
+61,Unknown,RAGAS,Answer Relevancy,Question Generation,0.7568972110748291,856,27,883,200,STORE,0
+62,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+63,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+64,Unknown,RAGAS,Faithfulness,Statement Verification,0.929901123046875,1064,219,1283,200,STORE,0
+65,Unknown,RAGAS,Answer Relevancy,Question Generation,0.8425686359405518,647,24,671,200,STORE,0
+66,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+67,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+68,Unknown,Unknown,Unknown,Unknown,0.882835865020752,391,72,463,200,STORE,0
+69,Unknown,RAGAS,Faithfulness,Statement Verification,1.0841267108917236,834,174,1008,200,STORE,0
+70,Unknown,Unknown,Unknown,Unknown,0.959721565246582,908,88,996,200,STORE,0
+71,Unknown,Unknown,Unknown,Unknown,0.7411713600158691,962,62,1024,200,STORE,0
+72,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+73,Unknown,Unknown,Unknown,Unknown,0.805020809173584,390,54,444,200,STORE,0
+74,Unknown,RAGAS,Answer Relevancy,Question Generation,0.7135188579559326,698,26,724,200,STORE,0
+75,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+76,Unknown,RAGAS,Answer Relevancy,Question Generation,0.0,0,0,0,200,HIT,0
+77,Unknown,RAGAS,Faithfulness,Statement Verification,0.9442965984344482,871,145,1016,200,STORE,0
+78,Unknown,Unknown,Unknown,Unknown,1.153228998184204,961,100,1061,200,STORE,0
+79,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0
+80,Unknown,Unknown,Unknown,Unknown,0.0,0,0,0,200,HIT,0

@@ -1,0 +1,20 @@
+{
+  "total_requests": 108,
+  "average_requests_per_sample": 36.0,
+  "min_requests": 4,
+  "max_requests": 100,
+  "total_prompt_tokens": 9359,
+  "total_completion_tokens": 790,
+  "total_tokens": 10149,
+  "average_prompt_tokens": 3119.6666666666665,
+  "average_completion_tokens": 263.3333333333333,
+  "average_tokens": 3383.0,
+  "average_latency_per_request_s": 0.45887216594484115,
+  "average_latency_per_sample_s": 16.519397974014282,
+  "total_retries": 96,
+  "total_429s": 89,
+  "percentage_429_of_retries": 92.70833333333334,
+  "cache_hits": 12,
+  "cache_misses": 15,
+  "average_cache_lookup_time_ms": 3.733474196809711
+}

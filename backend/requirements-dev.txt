@@ -1,0 +1,5 @@
+-r requirements-training.txt
+
+pytest==8.0.0
+ruff==0.2.1
+black==24.2.0

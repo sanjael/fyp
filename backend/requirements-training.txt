@@ -1,0 +1,19 @@
+-r requirements-runtime.txt
+
+# Evaluator Frameworks
+ragas==0.1.1
+deepeval==0.20.14
+
+# Hugging Face Stack (Pinned tightly to avoid typer>=0.20.0 conflict with DeepEval)
+datasets==2.18.0
+huggingface-hub==0.21.4
+transformers==4.38.2
+sentence-transformers==2.5.1
+tokenizers==0.15.2
+
+# Data Processing
+pyarrow==15.0.0
+pandas==2.2.0
+
+# Hyperparameter Optimization
+optuna==3.5.0

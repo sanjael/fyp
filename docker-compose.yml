@@ -58,6 +58,11 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     # Note: On Windows with WSL2, you might need to run Ollama on the host machine to access the GPU effectively.
     # If running inside docker, it will use CPU by default unless configured for GPU.
     
@@ -73,12 +78,18 @@ services:
         condition: service_healthy
       chromadb:
         condition: service_healthy
+      ollama:
+        condition: service_healthy
     environment:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-ragguard_admin}:${POSTGRES_PASSWORD:-ragguard_secure_password}@postgres:5432/${POSTGRES_DB:-ragguard_tr}
       - REDIS_URL=redis://redis:6379/0
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
       - OLLAMA_HOST=http://ollama:11434
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
+      - EVALUATOR_PROVIDER=${EVALUATOR_PROVIDER:-google}
+      - EVALUATOR_LLM_MODEL=${EVALUATOR_LLM_MODEL:-gemini-2.5-flash}
     ports:
       - "8080:8080"
     volumes:
@@ -96,12 +107,20 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      chromadb:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
     environment:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-ragguard_admin}:${POSTGRES_PASSWORD:-ragguard_secure_password}@postgres:5432/${POSTGRES_DB:-ragguard_tr}
       - REDIS_URL=redis://redis:6379/0
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
       - OLLAMA_HOST=http://ollama:11434
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
+      - EVALUATOR_PROVIDER=${EVALUATOR_PROVIDER:-google}
+      - EVALUATOR_LLM_MODEL=${EVALUATOR_LLM_MODEL:-gemini-2.5-flash}
     volumes:
       - ./backend:/app
     restart: unless-stopped

@@ -2,23 +2,21 @@ import os
 import chromadb
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.vectorstores import Chroma
-
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
-CHROMA_HOST = os.getenv("CHROMA_HOST", "chromadb")
-CHROMA_PORT = int(os.getenv("CHROMA_PORT", 8000))
+from app.core.config import global_config
 
 # Initialize Ollama Embeddings
 embeddings = OllamaEmbeddings(
-    base_url=OLLAMA_HOST,
-    model="nomic-embed-text"
+    base_url=global_config.OLLAMA_HOST,
+    model=global_config.EMBEDDING_MODEL
 )
 
 # Initialize ChromaDB client
 try:
-    chroma_client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
+    chroma_client = chromadb.HttpClient(host=global_config.CHROMA_HOST, port=global_config.CHROMA_PORT)
+    chroma_client.heartbeat()
 except Exception as e:
-    print(f"Failed to connect to ChromaDB: {e}")
-    chroma_client = None
+    print(f"Failed to connect to ChromaDB via HTTP: {e}. Falling back to PersistentClient...")
+    chroma_client = chromadb.PersistentClient(path=os.path.join(os.path.dirname(__file__), "..", "..", "chroma"))
 
 def get_vector_store(collection_name: str = "ragguard_docs"):
     if not chroma_client:

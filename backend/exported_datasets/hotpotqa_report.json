@@ -1,0 +1,10 @@
+{
+    "dataset": "hotpotqa",
+    "total_processed": 10,
+    "failed_evaluations": 0,
+    "failure_rate": 0.0,
+    "mean_rrt": 0.4474,
+    "median_rrt": 0.4592,
+    "std_rrt": 0.0492,
+    "mean_latency_ms": 54745.76
+}

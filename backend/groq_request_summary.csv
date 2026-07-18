@@ -1,0 +1,4 @@
+Framework,Metric,Prompt Type,Count,Average Tokens,Average Latency,Retries,429s
+RAGAS,Answer Relevancy,Question Generation,30,250.4,0.51,0,0
+Unknown,Unknown,Unknown,40,397.6,0.79,0,0
+RAGAS,Faithfulness,Statement Verification,10,1069.5,1.5,0,0

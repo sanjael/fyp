@@ -1,11 +1,10 @@
 import os
 from langchain_community.llms import Ollama
-
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
+from app.core.config import global_config
 
 llm = Ollama(
-    base_url=OLLAMA_HOST,
-    model="llama3.1:8b"
+    base_url=global_config.OLLAMA_HOST,
+    model=global_config.GENERATOR_LLM_MODEL
 )
 
 def generate_answer(query: str, context: str) -> str:
