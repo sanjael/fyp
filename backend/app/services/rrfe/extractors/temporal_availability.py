@@ -2,6 +2,7 @@ from typing import List
 
 from langchain_core.documents import Document
 
+from app.core.date_parser import extract_doc_datetime
 from ..core.base_extractor import BaseFeatureExtractor
 from ..models import FeatureResult, TemporalAvailabilityResult
 
@@ -37,18 +38,13 @@ class TemporalAvailabilityExtractor(BaseFeatureExtractor):
         """Return (status, reason) for a single document chunk."""
         meta = doc.metadata
 
-        if meta.get("document_date"):
-            return "Available", "Explicit document_date found in chunk metadata"
+        parsed_dt = extract_doc_datetime(meta)
+        if parsed_dt is not None:
+            return "Available", f"Publication date ({parsed_dt.strftime('%Y-%m-%d')}) found in chunk metadata"
 
         # Heuristic: ingestion_date exists but no document_date
         if meta.get("ingestion_date"):
-            return "Estimated", "Only ingestion_date available; document_date unknown"
-
-        # Heuristic: filename contains a 4-digit year
-        filename = str(meta.get("filename", "") or meta.get("document_filename", ""))
-        import re
-        if re.search(r"(?<!\d)(19|20)\d{2}(?!\d)", filename):
-            return "Estimated", f"Year pattern detected in filename: {filename}"
+            return "Estimated", "Only ingestion_date available; publication date unknown"
 
         return "Unknown", "No date signal found in metadata or filename"
 

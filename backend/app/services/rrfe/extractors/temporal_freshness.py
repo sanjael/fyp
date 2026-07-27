@@ -4,6 +4,7 @@ from typing import List
 
 from langchain_core.documents import Document
 
+from app.core.date_parser import extract_doc_datetime
 from ..config import config
 from ..core.base_extractor import BaseFeatureExtractor
 from ..models import FeatureResult
@@ -39,30 +40,22 @@ class TemporalFreshnessExtractor(BaseFeatureExtractor):
             )
 
         now = datetime.now(timezone.utc)
-        scored, total = 0.0, 0
+        scored = 0.0
         dated_count = 0
 
         for doc in docs:
-            date_str = doc.metadata.get("document_date")
-            if not date_str:
-                # No document date — do NOT fall back to ingestion_date
+            doc_date = extract_doc_datetime(doc.metadata)
+            if doc_date is None:
                 continue
-            try:
-                doc_date = datetime.fromisoformat(
-                    str(date_str).replace("Z", "+00:00")
-                ).astimezone(timezone.utc)
-                age_days = max(0, (now - doc_date).days)
-                scored += math.exp(-self._LAMBDA * age_days)
-                dated_count += 1
-            except Exception:
-                continue
-            total += 1
+            age_days = max(0, (now - doc_date).days)
+            scored += math.exp(-self._LAMBDA * age_days)
+            dated_count += 1
 
         if dated_count == 0:
             return FeatureResult(
                 score=None,
                 confidence=0.0,
-                reason="No document_date found in any retrieved chunk",
+                reason="No publication date found in metadata across retrieved chunks",
                 evidence_source="Unavailable",
             )
 

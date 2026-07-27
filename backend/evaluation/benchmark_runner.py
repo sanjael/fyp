@@ -43,6 +43,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("eval.orchestrator")
 
+import traceback
+from app.core.formatting import format_trri, format_float
 from evaluation.datasets.registry import get_loader, REGISTRY
 from evaluation.runners.ragguard_tr_runner import RAGGuardTRRunner
 from evaluation.runners.baseline_runner import BaselineRAGRunner
@@ -153,24 +155,32 @@ class BenchmarkOrchestrator:
                 logger.info(f"[{dataset_name}] Sample {i+1}/{len(samples)}: {sample.sample_id}")
 
                 # --- RAGGuard-TR ---
-                rg_result = self.rg_runner.run(sample)
-                rg_ragas = self.ragas_eval.evaluate(rg_result)
-                rg_deepeval = self.deepeval_eval.evaluate(rg_result)
-                rg_rec = _merge_record(rg_result, rg_ragas, rg_deepeval)
-                all_rg_records.append(rg_rec)
+                try:
+                    rg_result = self.rg_runner.run(sample)
+                    rg_ragas = self.ragas_eval.evaluate(rg_result)
+                    rg_deepeval = self.deepeval_eval.evaluate(rg_result)
+                    rg_rec = _merge_record(rg_result, rg_ragas, rg_deepeval)
+                    all_rg_records.append(rg_rec)
+                except Exception as exc:
+                    logger.error(f"RAGGuard-TR failed on sample {sample.sample_id}: {exc}", exc_info=True)
+                    continue
 
                 # --- Baseline ---
-                bl_result = self.bl_runner.run(sample)
-                bl_ragas = self.ragas_eval.evaluate(bl_result)
-                bl_deepeval = self.deepeval_eval.evaluate(bl_result)
-                bl_rec = _merge_record(bl_result, bl_ragas, bl_deepeval)
-                all_bl_records.append(bl_rec)
+                try:
+                    bl_result = self.bl_runner.run(sample)
+                    bl_ragas = self.ragas_eval.evaluate(bl_result)
+                    bl_deepeval = self.deepeval_eval.evaluate(bl_result)
+                    bl_rec = _merge_record(bl_result, bl_ragas, bl_deepeval)
+                    all_bl_records.append(bl_rec)
+                except Exception as exc:
+                    logger.error(f"Baseline failed on sample {sample.sample_id}: {exc}", exc_info=True)
+                    all_bl_records.append({"sample_id": sample.sample_id, "pipeline": "baseline", "error": str(exc)})
 
                 logger.info(
-                    f"  RG: TRRI={rg_result.trri:.3f if rg_result.trri else 'N/A'} "
-                    f"faith={rg_rec.get('ragas_faithfulness', 'N/A')} "
-                    f"hall={rg_rec.get('deepeval_hallucination', 'N/A')} | "
-                    f"BL: faith={bl_rec.get('ragas_faithfulness', 'N/A')}"
+                    f"  RG: TRRI={format_trri(rg_result.trri)} "
+                    f"faith={format_float(rg_rec.get('ragas_faithfulness'))} "
+                    f"hall={format_float(rg_rec.get('deepeval_hallucination'))} | "
+                    f"BL: faith={format_float(bl_rec.get('ragas_faithfulness'))}"
                 )
 
         total_samples = len(all_rg_records)
@@ -407,16 +417,23 @@ def _get_config(key: str, default: str) -> str:
 
 
 def _print_summary(significance_results, trri_stats, fail_counts) -> None:
+    # Ensure stdout handles encoding safely on Windows
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
     print("\n" + "=" * 60)
     print("  RAGGuard-TR Evaluation Summary")
     print("=" * 60)
     if trri_stats:
         print(f"  TRRI  mean={trri_stats.mean:.4f}  std={trri_stats.std:.4f}  "
               f"95%CI=[{trri_stats.ci95_lower:.4f}, {trri_stats.ci95_upper:.4f}]")
-    print(f"\n  {'Metric':<35} {'Δ':>8}  {'p-value':>8}  {'Sig':>5}  {'Direction'}")
+    print(f"\n  {'Metric':<35} {'Delta':>8}  {'p-value':>8}  {'Sig':>5}  {'Direction'}")
     print("  " + "-" * 65)
     for r in significance_results:
-        sig = "✓" if r.significant else " "
+        sig = "*" if r.significant else " "
         print(f"  {r.metric:<35} {r.delta:>+8.4f}  {r.p_value:>8.4f}  {sig:>5}  {r.effect_direction}")
     total_failures = sum(fail_counts.values())
     print(f"\n  Total failure events: {total_failures}")

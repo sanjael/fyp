@@ -121,7 +121,9 @@ class RAGGuardTRRunner:
             result.predictor_latency_ms = (time.perf_counter() - t0) * 1000
             result.trri = inference.trri
             result.predictor_model_version = inference.metadata.model_version
-            if inference.trri < 0.5:
+            if inference.trri is None:
+                result.risk_level = "unavailable"
+            elif inference.trri < 0.5:
                 result.risk_level = "high"
             elif inference.trri < 0.8:
                 result.risk_level = "medium"

@@ -29,11 +29,14 @@ class FeaturePreprocessor:
     Raises MissingFeatureError if any feature score is None.
     """
 
-    def transform(self, rrfe_features: dict) -> np.ndarray:
-        missing = [
+    def get_missing_features(self, rrfe_features: dict) -> list[str]:
+        return [
             name for name in FEATURE_NAMES
             if rrfe_features.get(name) is None
         ]
+
+    def transform(self, rrfe_features: dict) -> np.ndarray:
+        missing = self.get_missing_features(rrfe_features)
         if missing:
             raise MissingFeatureError(
                 f"Cannot predict TRRI: the following RRFE features have no valid score: "

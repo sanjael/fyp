@@ -308,6 +308,8 @@ except ImportError:
     class DeepEvalBaseLLM:
         pass
 
+from app.core.json_repair import clean_json_text
+
 class ProviderLangchainWrapper(BaseChatModel):
     provider: Any
     underlying: Any
@@ -315,9 +317,11 @@ class ProviderLangchainWrapper(BaseChatModel):
     def _generate(self, messages, stop=None, run_manager=None, **kwargs):
         prompt = messages[0].content if messages else ""
         def func(p):
-            return self.underlying.invoke(messages, stop=stop, **kwargs).content
+            res = self.underlying.invoke(messages, stop=stop, **kwargs)
+            return res.content
         content = self.provider.execute_with_features(prompt, func)
-        return ChatResult(generations=[ChatGeneration(message=AIMessage(content=content))])
+        cleaned_content = clean_json_text(content) if content and "```" in content else content
+        return ChatResult(generations=[ChatGeneration(message=AIMessage(content=cleaned_content))])
         
     async def _agenerate(self, messages, stop=None, run_manager=None, **kwargs):
         prompt = messages[0].content if messages else ""
@@ -325,7 +329,8 @@ class ProviderLangchainWrapper(BaseChatModel):
             res = await self.underlying.ainvoke(messages, stop=stop, **kwargs)
             return res.content
         content = await self.provider.a_execute_with_features(prompt, func)
-        return ChatResult(generations=[ChatGeneration(message=AIMessage(content=content))])
+        cleaned_content = clean_json_text(content) if content and "```" in content else content
+        return ChatResult(generations=[ChatGeneration(message=AIMessage(content=cleaned_content))])
         
     @property
     def _llm_type(self) -> str:
@@ -341,13 +346,15 @@ class ProviderDeepEvalWrapper(DeepEvalBaseLLM):
     def generate(self, prompt: str) -> str:
         def func(p):
             return self.provider.get_langchain_model().invoke(p).content
-        return self.provider.execute_with_features(prompt, func)
+        content = self.provider.execute_with_features(prompt, func)
+        return clean_json_text(content) if content and ("{" in content or "```" in content) else content
         
     async def a_generate(self, prompt: str) -> str:
         async def func(p):
             res = await self.provider.get_langchain_model().ainvoke(p)
             return res.content
-        return await self.provider.a_execute_with_features(prompt, func)
+        content = await self.provider.a_execute_with_features(prompt, func)
+        return clean_json_text(content) if content and ("{" in content or "```" in content) else content
         
     def get_model_name(self):
         return self.provider.model_name
