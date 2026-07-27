@@ -20,7 +20,7 @@ from app.core.evaluator_provider.factory import get_evaluator_provider
 print("6. provider wrapper")
 from app.core.evaluator_provider.base import ProviderLangchainWrapper
 
-print("7. embedding_engine")
-from app.services.embedding_engine import embeddings
+print("7. embedding_provider")
+from app.services.embedding_provider import embeddings
 
 print("8. SUCCESS")

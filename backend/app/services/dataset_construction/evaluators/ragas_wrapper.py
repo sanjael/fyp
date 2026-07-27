@@ -7,7 +7,7 @@ try:
     from ragas.metrics import context_precision, faithfulness, answer_relevancy
     from ....core.evaluator_provider.factory import get_evaluator_provider
     from ....core.evaluator_provider.base import ProviderLangchainWrapper
-    from ....services.embedding_engine import embeddings
+    from app.services.embedding_provider import embeddings
     RAGAS_AVAILABLE = True
 except ImportError:
     RAGAS_AVAILABLE = False

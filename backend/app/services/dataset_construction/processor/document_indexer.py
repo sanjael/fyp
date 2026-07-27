@@ -2,8 +2,8 @@ import hashlib
 from typing import List
 from langchain_core.documents import Document
 
-from ....services.embedding_engine import search_documents, add_documents_to_chroma
-from ....services.document_processor import chunk_document
+from app.services.vector_store import search_documents, add_documents_to_chroma
+from app.services.document_processor import chunk_document
 
 class RAGProcessor:
     def __init__(self):

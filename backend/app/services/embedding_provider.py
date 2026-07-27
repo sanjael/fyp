@@ -1,14 +1,17 @@
 """
-Embedding Provider
-==================
+Embedding Provider Service
+==========================
 Owns ONLY the OllamaEmbeddings instance.
 
 Deliberately contains NO chromadb import so that evaluation modules
 (RAGAS, DeepEval) can import embeddings without triggering ChromaDB's
 DefaultEmbeddingFunction / ONNXMiniLM_L6_V2 initialisation.
 """
+from typing import List
 from langchain_community.embeddings import OllamaEmbeddings
 from app.core.config import global_config
+
+__all__ = ["get_embeddings", "embeddings"]
 
 _embeddings: OllamaEmbeddings | None = None
 
@@ -30,11 +33,12 @@ class _LazyEmbeddings:
         from app.services.embedding_provider import embeddings
     without triggering initialisation at import time.
     """
-    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
         return get_embeddings().embed_documents(texts)
 
-    def embed_query(self, text: str) -> list[float]:
+    def embed_query(self, text: str) -> List[float]:
         return get_embeddings().embed_query(text)
 
 
 embeddings = _LazyEmbeddings()
+

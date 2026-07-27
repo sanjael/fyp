@@ -77,7 +77,7 @@ class DatasetConstructionPipeline:
                 total_chunks += len(chunk_document(doc, filename='dummy.txt'))
             chunk_time = (time.time() - chunk_start) * 1000
             
-            from ..embedding_engine import get_vector_store
+            from app.services.vector_store import get_vector_store
             vector_store = get_vector_store()
             chroma_count_before = vector_store._collection.count()
             
@@ -93,7 +93,7 @@ class DatasetConstructionPipeline:
             retrieval_time = (time.time() - retrieval_start) * 1000
             retrieved_ids = [doc.metadata.get("chunk_id", "unknown") for doc in retrieved_docs]
             
-            from ..embedding_engine import search_documents
+            from app.services.vector_store import search_documents
             results_with_scores = search_documents(unified.query, k=3)
             retrieved_count = len(results_with_scores)
             for i, (doc, score) in enumerate(results_with_scores):
@@ -250,7 +250,7 @@ class DatasetConstructionPipeline:
         for i in range(max_retries):
             try:
                 # Attempt to embed and insert a dummy chunk to prove readiness
-                from ..embedding_engine import add_documents_to_chroma, search_documents
+                from app.services.vector_store import add_documents_to_chroma, search_documents
                 from langchain_core.documents import Document
                 dummy_doc = [Document(page_content="healthcheck", metadata={"chunk_id": "healthcheck"})]
                 add_documents_to_chroma(dummy_doc)
