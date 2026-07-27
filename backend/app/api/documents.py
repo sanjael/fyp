@@ -4,7 +4,7 @@ from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from pydantic import BaseModel
 from datetime import datetime
 from ..services.document_processor import extract_text_from_pdf, chunk_document
-from ..services.embedding_engine import add_documents_to_chroma
+from ..services.vector_store import add_documents_to_chroma
 
 router = APIRouter()
 

@@ -1,0 +1,21 @@
+{
+    "model_version": "v2026.07.27.7a6c",
+    "training_date": "2026-07-27T14:34:22.015936",
+    "optuna_params": {
+        "max_depth": 3,
+        "learning_rate": 0.004019388584704409,
+        "n_estimators": 172,
+        "subsample": 0.8018575140069201,
+        "colsample_bytree": 0.7551119964344336,
+        "objective": "reg:squarederror",
+        "eval_metric": "rmse"
+    },
+    "features": [
+        "temporal_freshness",
+        "temporal_availability",
+        "source_credibility",
+        "evidence_consistency",
+        "evidence_sufficiency"
+    ],
+    "feature_count": 5
+}

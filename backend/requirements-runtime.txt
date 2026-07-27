@@ -1,29 +1,57 @@
+# ============================================================
+# RAGGuard-TR — Runtime Requirements
+# Python 3.10
+# ============================================================
+
+# Web framework
 fastapi==0.109.2
 uvicorn==0.27.1
+python-multipart==0.0.9
+
+# Data validation
 pydantic==2.6.1
 pydantic-settings==2.1.0
+
+# Database
 sqlalchemy==2.0.25
 asyncpg==0.29.0
 alembic==1.13.1
+
+# Auth
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0
+
+# Task queue
 celery==5.3.6
 redis==5.0.1
-chromadb==0.4.24
-python-multipart==0.0.9
-structlog==24.1.0
-python-dotenv==1.0.1
+
+# HTTP / utilities
 httpx==0.26.0
+python-dotenv==1.0.1
+structlog==24.1.0
+tenacity==8.2.3
+diskcache==5.6.3
+email-validator==2.1.1
+
+# Document processing
 pdfplumber==0.10.3
-pytesseract==0.3.10
 python-docx==1.1.0
+
+# ML / numeric
+numpy==1.26.4
 scikit-learn==1.4.0
 xgboost==2.0.3
 shap==0.44.1
-numpy==1.26.4
+
+# LangChain stack — pinned tightly; ragas 0.1.x requires these exact ranges
 langchain==0.1.13
 langchain-community==0.0.29
+langchain-core==0.1.33
 langchain-text-splitters==0.0.1
-email-validator==2.1.1
-tenacity==8.2.3
-diskcache==5.6.3
+langchain-openai==0.1.1
+
+# Vector store
+# NOTE: chromadb 0.5.x uses a different client API than 0.4.x.
+# The project targets 0.5.5. Do NOT upgrade to 1.x — the HttpClient
+# constructor signature changed and will break vector_store.py.
+chromadb==0.5.5

@@ -1,12 +1,19 @@
 from pydantic_settings import BaseSettings
 
+
 class RRFEConfig(BaseSettings):
-    DEFAULT_TEMPORAL_SCORE: float = 0.5
-    DEFAULT_CREDIBILITY_SCORE: float = 0.5
-    DEFAULT_CONSISTENCY_SCORE: float = 0.5
-    DEFAULT_SUFFICIENCY_SCORE: float = 0.5
-    
-    # Embedding based thresholds or constants if needed
+    # Temporal Freshness
+    FRESHNESS_HALF_LIFE_DAYS: float = 180.0
+
+    # Source Credibility defaults by document type
     EMBEDDING_BATCH_SIZE: int = 32
+
+    # Consistency
+    CONSISTENCY_VARIANCE_PENALTY_THRESHOLD: float = 0.3
+
+    # Sufficiency weights
+    SUFFICIENCY_MAX_WEIGHT: float = 0.6
+    SUFFICIENCY_MEAN_WEIGHT: float = 0.4
+
 
 config = RRFEConfig()

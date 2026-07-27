@@ -65,7 +65,13 @@ class Trainer:
         # Parse JSON features
         import json
         df['parsed_features'] = df['rrfe_features'].apply(lambda x: json.loads(x) if isinstance(x, str) else x)
-        features = ["temporal_freshness", "source_credibility", "evidence_consistency", "evidence_sufficiency"]
+        features = [
+            "temporal_freshness",
+            "temporal_availability",
+            "source_credibility",
+            "evidence_consistency",
+            "evidence_sufficiency",
+        ]
         
         for feat in features:
             df[feat] = df['parsed_features'].apply(lambda x: x.get(feat, 0.5) if isinstance(x, dict) else 0.5)
@@ -149,7 +155,8 @@ class Trainer:
             "model_version": version,
             "training_date": datetime.datetime.utcnow().isoformat(),
             "optuna_params": best_params,
-            "features": features
+            "features": features,
+            "feature_count": len(features),
         }
         with open(os.path.join(version_dir, "metadata.json"), "w") as f:
             json.dump(metadata, f, indent=4)

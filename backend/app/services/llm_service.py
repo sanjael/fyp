@@ -1,11 +1,16 @@
-import os
 from langchain_community.llms import Ollama
 from app.core.config import global_config
 
-llm = Ollama(
-    base_url=global_config.OLLAMA_HOST,
-    model=global_config.GENERATOR_LLM_MODEL
-)
+_llm = None
+
+def _get_llm():
+    global _llm
+    if _llm is None:
+        _llm = Ollama(
+            base_url=global_config.OLLAMA_HOST,
+            model=global_config.GENERATOR_LLM_MODEL
+        )
+    return _llm
 
 def generate_answer(query: str, context: str) -> str:
     prompt = f"""You are RAGGuard-TR, a highly intelligent and reliable AI assistant.
@@ -18,6 +23,4 @@ Question:
 {query}
 
 Answer:"""
-    
-    response = llm.invoke(prompt)
-    return response
+    return _get_llm().invoke(prompt)

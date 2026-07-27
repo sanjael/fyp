@@ -1,0 +1,16 @@
+{
+    "status": "unhealthy",
+    "services": {
+        "chromadb": "offline",
+        "ollama": "online",
+        "fastapi": "offline (or endpoint /health missing)"
+    },
+    "ollama_models": {
+        "installed": [
+            "qwen2.5:latest",
+            "nomic-embed-text"
+        ],
+        "missing": [],
+        "pull_failed": []
+    }
+}

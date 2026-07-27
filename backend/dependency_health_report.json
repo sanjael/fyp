@@ -1,0 +1,46 @@
+{
+    "python_version": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+    "imports_successful": true,
+    "packages": {
+        "fastapi": {
+            "expected": "0.109.2",
+            "actual": "0.109.2",
+            "match": true
+        },
+        "ragas": {
+            "expected": "0.1.1",
+            "actual": "0.1.1",
+            "match": true
+        },
+        "deepeval": {
+            "expected": "0.20.14",
+            "actual": "0.20.14",
+            "match": true
+        },
+        "langchain": {
+            "expected": "0.1.13",
+            "actual": "0.1.13",
+            "match": true
+        },
+        "langchain-community": {
+            "expected": "0.0.29",
+            "actual": "0.0.29",
+            "match": true
+        },
+        "chromadb": {
+            "expected": "0.4.24",
+            "actual": "0.4.24",
+            "match": true
+        },
+        "xgboost": {
+            "expected": "2.0.3",
+            "actual": "2.0.3",
+            "match": true
+        },
+        "langchain-core": {
+            "actual": "0.1.53"
+        }
+    },
+    "conflicts": [],
+    "duplicate_langchain": []
+}

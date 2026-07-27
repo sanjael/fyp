@@ -1,16 +1,48 @@
 import numpy as np
+from typing import Optional
+
+# Ordered feature names — must match XGBoost training column order
+FEATURE_NAMES = [
+    "temporal_freshness",
+    "temporal_availability",
+    "source_credibility",
+    "evidence_consistency",
+    "evidence_sufficiency",
+]
+
+
+class MissingFeatureError(ValueError):
+    """
+    Raised when one or more RRFE features have score=None.
+    The predictor must not substitute a neutral default for missing features.
+    """
+    pass
+
 
 class FeaturePreprocessor:
+    """
+    Converts the RRFE feature dict into a strictly-ordered numpy array
+    for XGBoost inference.
+
+    Column order: [tff, taf, scf, ecf, esf]  (5 features)
+    All values are clamped to [0, 1] before inference.
+    Raises MissingFeatureError if any feature score is None.
+    """
+
     def transform(self, rrfe_features: dict) -> np.ndarray:
-        """
-        Takes raw dictionary of RRFE features and normalizes to a rigid numpy array.
-        Expected order: [tff, scf, ecf, esf]
-        """
-        # Strictly enforce bounds and structure before inference
-        tff = max(0.0, min(1.0, float(rrfe_features.get("temporal_freshness", 0.5))))
-        scf = max(0.0, min(1.0, float(rrfe_features.get("source_credibility", 0.5))))
-        ecf = max(0.0, min(1.0, float(rrfe_features.get("evidence_consistency", 0.5))))
-        esf = max(0.0, min(1.0, float(rrfe_features.get("evidence_sufficiency", 0.5))))
-        
-        # XGBoost expects 2D array for single inference: shape (1, 4)
-        return np.array([[tff, scf, ecf, esf]])
+        missing = [
+            name for name in FEATURE_NAMES
+            if rrfe_features.get(name) is None
+        ]
+        if missing:
+            raise MissingFeatureError(
+                f"Cannot predict TRRI: the following RRFE features have no valid score: "
+                f"{missing}. "
+                f"Substituting 0.5 is scientifically invalid. "
+                f"Investigate why these extractors failed before running evaluation."
+            )
+        row = [
+            max(0.0, min(1.0, float(rrfe_features[name])))
+            for name in FEATURE_NAMES
+        ]
+        return np.array([row])

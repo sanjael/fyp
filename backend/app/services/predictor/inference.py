@@ -13,6 +13,15 @@ from .validation import PredictionValidator
 from .models import InferenceResponse
 from .explainability import Explainer
 
+
+class ModelNotTrainedError(RuntimeError):
+    """
+    Raised when no trained TRRI model exists in the artifact registry.
+    Evaluation must not proceed without a valid trained model.
+    """
+    pass
+
+
 class PredictorEngine:
     def __init__(self):
         self.loader = ModelLoader()
@@ -22,51 +31,65 @@ class PredictorEngine:
 
     def predict(self, rrfe_features: dict, version: str = "latest") -> InferenceResponse:
         start_time = time.time()
-        
-        try:
-            # 1. Load cached model
-            model, actual_version = self.loader.load_model(version)
-            
-            # 2. Preprocess features
-            features_array = self.preprocessor.transform(rrfe_features)
-            
-            # 3. Predict
-            if XGB_AVAILABLE:
-                # Convert to DMatrix for prediction
-                dmatrix = xgb.DMatrix(features_array)
-                preds = model.predict(dmatrix)
-                raw_trri = float(preds[0])
-            else:
-                # Mock prediction for fallback model
-                import numpy as np
-                raw_trri = float(np.mean(features_array))
-            
-            # 4. Validate & Monitor
-            safe_trri, drift_flags = self.validator.validate_prediction(raw_trri)
-            
-            # 5. Explainability (Optional)
-            shap_values = None
-            if self.explainer:
+
+        # 1. Load model — raises ModelNotTrainedError if no trained model exists.
+        #    Silent fallback to mean(features) is scientifically invalid and forbidden.
+        model, actual_version = self._load_or_raise(version)
+
+        # 2. Preprocess features
+        features_array = self.preprocessor.transform(rrfe_features)
+
+        # 3. Predict
+        if XGB_AVAILABLE:
+            import xgboost as xgb
+            dmatrix = xgb.DMatrix(features_array)
+            preds = model.predict(dmatrix)
+            raw_trri = float(preds[0])
+        else:
+            # XGBoost is not installed — cannot produce a valid prediction.
+            raise ModelNotTrainedError(
+                "XGBoost is not installed. "
+                "Install xgboost and train the TRRI model before running evaluation."
+            )
+
+        # 4. Validate & monitor
+        safe_trri, drift_flags = self.validator.validate_prediction(raw_trri)
+
+        # 5. Explainability (optional)
+        shap_values = None
+        if self.explainer:
+            try:
                 shap_values = self.explainer.get_local_importance(model, features_array)
-                
-        except Exception as e:
-            print(f"Prediction failed: {e}")
-            # Safe fallback on catastrophic failure
-            safe_trri = 0.5
-            actual_version = "fallback"
-            drift_flags = ["prediction_failure"]
-            shap_values = None
+            except Exception as shap_exc:
+                # SHAP failure must not silently corrupt the prediction
+                drift_flags.append(f"shap_failed: {shap_exc}")
 
         latency_ms = (time.time() - start_time) * 1000
-        
-        # 6. Build Metadata and Return
         metadata = self.validator.build_metadata(latency_ms, actual_version, drift_flags)
-        
+
         return InferenceResponse(
             trri=safe_trri,
             metadata=metadata,
-            shap_values=shap_values
+            shap_values=shap_values,
         )
+
+    def _load_or_raise(self, version: str):
+        """
+        Load the trained model from the artifact registry.
+        Raises ModelNotTrainedError with a clear message if no model is found.
+        Never falls back to a heuristic or averaging.
+        """
+        try:
+            return self.loader.load_model(version)
+        except FileNotFoundError as exc:
+            raise ModelNotTrainedError(
+                "Trained TRRI model not found. "
+                "Please train the model before running evaluation.\n"
+                f"  Train command: python -m app.services.predictor.train --dataset <path>\n"
+                f"  Artifact directory: {config.ARTIFACTS_DIR}\n"
+                f"  Original error: {exc}"
+            ) from exc
+
 
 # Singleton instance
 predictor_engine = PredictorEngine()

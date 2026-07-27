@@ -1,0 +1,7 @@
+-r requirements-training.txt
+
+# Statistical analysis
+scipy==1.12.0
+
+# Visualization
+matplotlib==3.8.3

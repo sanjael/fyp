@@ -1,19 +1,49 @@
+# ============================================================
+# RAGGuard-TR — Training + Evaluation Requirements
+# Extends requirements-runtime.txt
+# Python 3.10
+#
+# CRITICAL VERSION CONSTRAINTS — DO NOT CHANGE WITHOUT TESTING:
+#
+#   ragas 0.1.x requires langchain-community <= 0.0.x
+#   because ragas/llms/base.py imports:
+#     from langchain_community.chat_models.vertexai import ChatVertexAI
+#   This submodule was REMOVED in langchain-community 0.3.0.
+#   Installing ragas >= 0.2.x or langchain-community >= 0.3.0 will
+#   cause an unconditional ModuleNotFoundError on ragas import.
+#
+#   deepeval 0.20.x is the last series compatible with
+#   langchain 0.1.x / pydantic 2.6.x without breaking changes.
+# ============================================================
+
 -r requirements-runtime.txt
 
-# Evaluator Frameworks
-ragas==0.1.1
+# ---- Evaluation Frameworks ----
+# ragas 0.1.13 = explodinggradients original series
+# Compatible with: langchain-community==0.0.29, datasets==2.18.0
+ragas==0.1.13
+
+# deepeval 0.20.14 = last version before major API restructure
 deepeval==0.20.14
 
-# Hugging Face Stack (Pinned tightly to avoid typer>=0.20.0 conflict with DeepEval)
+# ---- HuggingFace Stack ----
+# Pinned tightly — newer huggingface-hub versions pull in
+# typer >= 0.12 which conflicts with deepeval's typer pin.
 datasets==2.18.0
 huggingface-hub==0.21.4
 transformers==4.38.2
 sentence-transformers==2.5.1
 tokenizers==0.15.2
 
-# Data Processing
+# ---- Data Processing ----
 pyarrow==15.0.0
 pandas==2.2.0
 
-# Hyperparameter Optimization
+# ---- Statistical Analysis ----
+scipy==1.12.0
+
+# ---- Visualization ----
+matplotlib==3.8.3
+
+# ---- Hyperparameter Optimization ----
 optuna==3.5.0
