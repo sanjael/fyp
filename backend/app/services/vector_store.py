@@ -84,3 +84,13 @@ def delete_collection(collection_name: str = "ragguard_docs") -> None:
     except Exception as e:
         logger.warning(f"Could not delete collection {collection_name}: {e}")
 
+
+def delete_documents_by_filename(filename: str, collection_name: str = "ragguard_docs") -> None:
+    """Delete all chunks from ChromaDB matching a specific filename metadata attribute."""
+    try:
+        client = get_chroma_client()
+        collection = client.get_collection(collection_name)
+        collection.delete(where={"filename": filename})
+    except Exception as e:
+        logger.warning(f"Could not delete documents for {filename}: {e}")
+

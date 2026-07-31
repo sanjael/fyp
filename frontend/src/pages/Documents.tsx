@@ -41,6 +41,17 @@ const Documents = () => {
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Are you sure you want to delete this document? This will remove its vector embeddings from ChromaDB.")) return;
+    try {
+      await axios.delete(`/api/v1/documents/${id}`);
+      fetchDocs();
+    } catch (err) {
+      console.error("Failed to delete document", err);
+      alert("Failed to delete document.");
+    }
+  };
+
   return (
     <div>
       <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -55,7 +66,7 @@ const Documents = () => {
         </button>
       </div>
 
-      {/* Upload Dropzone (visual only for now) */}
+      {/* Upload Dropzone */}
       <div className="glass-panel" onClick={() => fileInputRef.current?.click()} style={{ cursor: 'pointer', padding: '60px', textAlign: 'center', marginBottom: '40px', border: '2px dashed var(--border-color)', background: 'rgba(0,0,0,0.1)' }}>
         <UploadCloud size={48} color="var(--primary)" style={{ marginBottom: '16px' }} />
         <h3 style={{ marginBottom: '8px', fontSize: '1.2rem' }}>Drag & Drop PDF files here</h3>
@@ -97,7 +108,14 @@ const Documents = () => {
                   )}
                 </td>
                 <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                  <button className="btn-outline" style={{ padding: '8px', border: 'none', color: 'var(--text-muted)' }}>
+                  <button 
+                    onClick={() => handleDelete(doc.id)} 
+                    className="btn-outline" 
+                    title="Delete Document" 
+                    style={{ padding: '8px', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', transition: 'color 0.2s' }}
+                    onMouseOver={e => e.currentTarget.style.color = 'var(--accent-red)'}
+                    onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}
+                  >
                     <Trash2 size={18} />
                   </button>
                 </td>

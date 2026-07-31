@@ -1,10 +1,10 @@
 import os
 import shutil
-from fastapi import APIRouter, UploadFile, File, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 from datetime import datetime
 from ..services.document_processor import extract_text_from_pdf, chunk_document
-from ..services.vector_store import add_documents_to_chroma
+from ..services.vector_store import add_documents_to_chroma, delete_documents_by_filename
 
 router = APIRouter()
 
@@ -68,3 +68,29 @@ async def upload_document(background_tasks: BackgroundTasks, file: UploadFile = 
 @router.get("/list", response_model=list[DocResponse])
 async def list_documents():
     return UPLOADED_DOCS
+
+@router.delete("/{doc_id}")
+async def delete_document(doc_id: int):
+    global UPLOADED_DOCS
+    target_doc = None
+    for doc in UPLOADED_DOCS:
+        if doc["id"] == doc_id:
+            target_doc = doc
+            break
+
+    if not target_doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    filename = target_doc["name"]
+    delete_documents_by_filename(filename)
+
+    file_path = f"uploads/{filename}"
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except Exception:
+            pass
+
+    UPLOADED_DOCS = [doc for doc in UPLOADED_DOCS if doc["id"] != doc_id]
+
+    return {"message": "Document deleted successfully", "doc_id": doc_id}
