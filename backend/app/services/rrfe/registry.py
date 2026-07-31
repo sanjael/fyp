@@ -1,5 +1,6 @@
 import time
-from typing import List
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import List, Dict
 
 from langchain_core.documents import Document
 
@@ -11,9 +12,6 @@ from .extractors.source_credibility import SourceCredibilityExtractor
 from .extractors.evidence_consistency import EvidenceConsistencyExtractor
 from .extractors.evidence_sufficiency import EvidenceSufficiencyExtractor
 
-# Fallback FeatureResult used when an extractor fails or validation fails.
-# score=None signals that no valid score was produced.
-# The predictor must handle None explicitly — never substitute 0.5.
 _FALLBACK = FeatureResult(
     score=None,
     confidence=0.0,
@@ -23,11 +21,10 @@ _FALLBACK = FeatureResult(
 
 
 class FeatureRegistry:
-    """Runs all registered extractors and assembles the RRFEResult."""
+    """Runs all registered extractors concurrently and assembles the RRFEResult."""
 
     def __init__(self) -> None:
-        self._extractors: list[BaseFeatureExtractor] = []
-        # Registration order determines feature vector column order
+        self._extractors: List[BaseFeatureExtractor] = []
         self.register(TemporalFreshnessExtractor())
         self.register(TemporalAvailabilityExtractor())
         self.register(SourceCredibilityExtractor())
@@ -37,32 +34,42 @@ class FeatureRegistry:
     def register(self, extractor: BaseFeatureExtractor) -> None:
         self._extractors.append(extractor)
 
+    def _run_single_extractor(self, extractor: BaseFeatureExtractor, query: str, docs: List[Document]) -> tuple[str, FeatureResult, Optional[str]]:
+        name = extractor.feature_name
+        try:
+            if not extractor.validate(query, docs):
+                return name, _FALLBACK, "skipped"
+            result: FeatureResult = extractor.extract(query, docs)
+            return name, result, None
+        except Exception as exc:
+            err_result = FeatureResult(
+                score=None,
+                confidence=0.0,
+                reason=f"Feature extraction failed: {exc}",
+                evidence_source="Unavailable",
+            )
+            return name, err_result, str(exc)
+
     def execute_all(self, query: str, docs: List[Document]) -> RRFEResult:
         start = time.perf_counter()
-        explanations: dict[str, FeatureResult] = {}
-        exec_meta: dict = {"failed_extractors": [], "skipped_extractors": []}
+        explanations: Dict[str, FeatureResult] = {}
+        exec_meta: Dict = {"failed_extractors": [], "skipped_extractors": []}
 
-        for extractor in self._extractors:
-            name = extractor.feature_name
-            try:
-                if not extractor.validate(query, docs):
-                    exec_meta["skipped_extractors"].append(name)
-                    explanations[name] = _FALLBACK
-                    continue
-                result: FeatureResult = extractor.extract(query, docs)
+        # Parallelize independent feature extractors using ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [
+                executor.submit(self._run_single_extractor, ext, query, docs)
+                for ext in self._extractors
+            ]
+            for future in as_completed(futures):
+                name, result, err = future.result()
                 explanations[name] = result
-            except Exception as exc:
-                exec_meta["failed_extractors"].append(f"{name}: {exc}")
-                explanations[name] = FeatureResult(
-                    score=None,
-                    confidence=0.0,
-                    reason=f"Feature extraction failed: {exc}",
-                    evidence_source="Unavailable",
-                )
+                if err == "skipped":
+                    exec_meta["skipped_extractors"].append(name)
+                elif err is not None:
+                    exec_meta["failed_extractors"].append(f"{name}: {err}")
 
-        exec_meta["execution_time_ms"] = round(
-            (time.perf_counter() - start) * 1000, 2
-        )
+        exec_meta["execution_time_ms"] = round((time.perf_counter() - start) * 1000, 2)
 
         vector = ReliabilityFeatureVector(
             temporal_freshness=explanations["temporal_freshness"].score,
@@ -71,10 +78,7 @@ class FeatureRegistry:
             evidence_consistency=explanations["evidence_consistency"].score,
             evidence_sufficiency=explanations["evidence_sufficiency"].score,
         )
-        # Record which features have missing scores in metadata
-        missing = [
-            name for name, fr in explanations.items() if fr.score is None
-        ]
+        missing = [name for name, fr in explanations.items() if fr.score is None]
         if missing:
             exec_meta["missing_feature_scores"] = missing
 

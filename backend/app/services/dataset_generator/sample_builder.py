@@ -20,6 +20,7 @@ class SampleBuilder:
             document_ids=doc_ids,
             retrieved_metadata=retrieved_metadata,
             tff=rrfe_vector.temporal_freshness,
+            taf=rrfe_vector.temporal_availability,
             scf=rrfe_vector.source_credibility,
             ecf=rrfe_vector.evidence_consistency,
             esf=rrfe_vector.evidence_sufficiency,

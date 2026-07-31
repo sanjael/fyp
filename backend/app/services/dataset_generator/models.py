@@ -7,10 +7,11 @@ class DatasetSample(BaseModel):
     query: str
     document_ids: List[str]
     retrieved_metadata: Dict[str, Any] = Field(default_factory=dict)
-    tff: float
-    scf: float
-    ecf: float
-    esf: float
+    tff: Optional[float] = None
+    taf: Optional[float] = None
+    scf: Optional[float] = None
+    ecf: Optional[float] = None
+    esf: Optional[float] = None
     raw_metrics: Dict[str, float] = Field(default_factory=dict)
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 

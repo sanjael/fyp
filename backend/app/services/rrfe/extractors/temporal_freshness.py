@@ -44,7 +44,7 @@ class TemporalFreshnessExtractor(BaseFeatureExtractor):
         dated_count = 0
 
         for doc in docs:
-            doc_date = extract_doc_datetime(doc.metadata)
+            doc_date = extract_doc_datetime(doc.metadata, text_content=doc.page_content)
             if doc_date is None:
                 continue
             age_days = max(0, (now - doc_date).days)

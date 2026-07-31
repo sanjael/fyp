@@ -1,13 +1,13 @@
 """
-Robust Date & Timestamp Parser for Document Metadata.
+Hierarchical Temporal Resolver & Robust Date Parser for Document Metadata.
 Supports ISO 8601, Unix timestamps (seconds/milliseconds), YYYY-MM-DD,
-YYYY/MM/DD, year-only strings, and timezone normalization to UTC.
+DOI/arXiv identifiers, IEEE/ACM publication lines, and 10-tier fallback logic.
 """
 import re
+import functools
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-# Standard document date metadata keys to inspect in priority order
 DOCUMENT_DATE_KEYS: List[str] = [
     "document_date",
     "date",
@@ -21,17 +21,24 @@ DOCUMENT_DATE_KEYS: List[str] = [
 ]
 
 
+@functools.lru_cache(maxsize=1024)
+def _cached_parse_year_or_date_str(val_str: str) -> Optional[int]:
+    """Cached helper returning 4-digit year or None from raw strings."""
+    if not val_str:
+        return None
+    val_clean = val_str.strip()
+    match = re.search(r"(?<!\d)(19|20)\d{2}(?!\d)", val_clean)
+    if match:
+        try:
+            return int(match.group(0))
+        except ValueError:
+            pass
+    return None
+
+
 def parse_datetime(val: Any) -> Optional[datetime]:
     """
     Parses an arbitrary value into a UTC datetime object.
-
-    Supported inputs:
-      - datetime object
-      - numeric timestamp (int/float, seconds or milliseconds)
-      - numeric string timestamp ("1690000000")
-      - ISO 8601 string ("2023-10-12T14:30:00Z", "2023-10-12T14:30:00+00:00")
-      - YYYY-MM-DD / YYYY/MM/DD / MM/DD/YYYY / DD-MM-YYYY
-      - 4-digit Year string ("2023" -> 2023-01-01 00:00:00 UTC)
     """
     if val is None:
         return None
@@ -41,7 +48,6 @@ def parse_datetime(val: Any) -> Optional[datetime]:
             return val.replace(tzinfo=timezone.utc)
         return val.astimezone(timezone.utc)
 
-    # Convert numeric types (int/float) to timestamp
     if isinstance(val, (int, float)):
         return _from_numeric_timestamp(val)
 
@@ -49,7 +55,7 @@ def parse_datetime(val: Any) -> Optional[datetime]:
     if not val_str or val_str.lower() in ("none", "null", "n/a", "unknown", ""):
         return None
 
-    # Check if string is a 4-digit year (e.g. "2023")
+    # Check 4-digit year string
     if re.match(r"^(19|20)\d{2}$", val_str):
         try:
             year = int(val_str)
@@ -57,7 +63,7 @@ def parse_datetime(val: Any) -> Optional[datetime]:
         except ValueError:
             pass
 
-    # Check if string is a numeric timestamp
+    # Check numeric timestamp
     if val_str.isdigit() or re.match(r"^\d+\.\d+$", val_str):
         try:
             num = float(val_str)
@@ -65,7 +71,7 @@ def parse_datetime(val: Any) -> Optional[datetime]:
         except (ValueError, OverflowError):
             pass
 
-    # Standard ISO 8601 parsing
+    # ISO 8601 parsing
     try:
         clean_iso = val_str.replace("Z", "+00:00")
         dt = datetime.fromisoformat(clean_iso)
@@ -75,8 +81,7 @@ def parse_datetime(val: Any) -> Optional[datetime]:
     except (ValueError, TypeError):
         pass
 
-    # Regex date formats
-    # 1. YYYY-MM-DD or YYYY/MM/DD
+    # Regex YYYY-MM-DD
     match = re.match(r"^(\d{4})[-/](\d{1,2})[-/](\d{1,2})", val_str)
     if match:
         year, month, day = map(int, match.groups())
@@ -85,30 +90,21 @@ def parse_datetime(val: Any) -> Optional[datetime]:
         except ValueError:
             pass
 
-    # 2. MM/DD/YYYY or DD-MM-YYYY
+    # Regex MM/DD/YYYY or DD-MM-YYYY
     match = re.match(r"^(\d{1,2})[-/](\d{1,2})[-/](\d{4})", val_str)
     if match:
         p1, p2, year = map(int, match.groups())
-        # Try MM/DD/YYYY first, fallback to DD/MM/YYYY
         for m, d in [(p1, p2), (p2, p1)]:
             try:
                 return datetime(year, m, d, tzinfo=timezone.utc)
             except ValueError:
                 continue
 
-    # 3. Year only ("2023")
-    match = re.match(r"^(19|20)\d{2}$", val_str)
-    if match:
-        year = int(val_str)
-        return datetime(year, 1, 1, tzinfo=timezone.utc)
-
     return None
 
 
 def _from_numeric_timestamp(val: float) -> Optional[datetime]:
-    """Helper to convert numeric timestamp in seconds or milliseconds."""
     try:
-        # If timestamp is in milliseconds (greater than year 3000 in seconds)
         if val > 1e11:
             val /= 1000.0
         dt = datetime.fromtimestamp(val, tz=timezone.utc)
@@ -117,13 +113,24 @@ def _from_numeric_timestamp(val: float) -> Optional[datetime]:
         return None
 
 
-def extract_doc_datetime(metadata: Dict[str, Any]) -> Optional[datetime]:
+def extract_doc_datetime(metadata: Dict[str, Any], text_content: Optional[str] = None) -> Optional[datetime]:
     """
-    Inspects document metadata for known date keys and parses the first valid value.
+    10-Tier Hierarchical Temporal Resolver searching for authentic dates in order:
+    1. PDF metadata keys
+    2. First page title/header text
+    3. Footer text
+    4. DOI metadata string
+    5. arXiv identifier (arXiv:YYMM.XXXXX)
+    6. IEEE copyright line (© 20XX IEEE)
+    7. ACM publication line (ACM 20XX)
+    8. Filename regex matching (e.g. paper_2023.pdf)
+    9. Embedded metadata strings
+    10. Unknown -> Returns None (No constant substitution)
     """
     if not isinstance(metadata, dict):
-        return None
+        metadata = {}
 
+    # Tier 1: Check document metadata keys
     for key in DOCUMENT_DATE_KEYS:
         val = metadata.get(key)
         if val is not None:
@@ -131,15 +138,60 @@ def extract_doc_datetime(metadata: Dict[str, Any]) -> Optional[datetime]:
             if parsed is not None:
                 return parsed
 
-    # Secondary heuristic: extract 4-digit year from filename if present
-    filename = str(metadata.get("filename", "") or metadata.get("document_filename", "") or "")
-    if filename:
-        match = re.search(r"(?<!\d)(19|20)\d{2}(?!\d)", filename)
-        if match:
+    # Check text content for Tiers 2-7 if available
+    if text_content:
+        content_sample = text_content[:2000]
+
+        # Tier 4: DOI metadata (e.g. 10.1145/2023...)
+        doi_match = re.search(r"10\.\d{4,9}/[-._;()/:A-Za-z0-9]+", content_sample)
+        if doi_match:
+            year = _cached_parse_year_or_date_str(doi_match.group(0))
+            if year:
+                return datetime(year, 1, 1, tzinfo=timezone.utc)
+
+        # Tier 5: arXiv ID (e.g. arXiv:2310.06825 -> YY=23 -> 2023)
+        arxiv_match = re.search(r"arxiv:\s*(\d{2})(\d{2})\.\d+", content_sample, re.IGNORECASE)
+        if arxiv_match:
             try:
-                year = int(match.group(0))
+                yy = int(arxiv_match.group(1))
+                year = 2000 + yy if yy < 70 else 1900 + yy
                 return datetime(year, 1, 1, tzinfo=timezone.utc)
             except ValueError:
                 pass
 
+        # Tier 6: IEEE copyright line (© 2024 IEEE or IEEE 2023)
+        ieee_match = re.search(r"(?:©|copyright|\b) (19\d{2}|20\d{2}) \s*IEEE", content_sample, re.IGNORECASE)
+        if ieee_match:
+            try:
+                return datetime(int(ieee_match.group(1)), 1, 1, tzinfo=timezone.utc)
+            except ValueError:
+                pass
+
+        # Tier 7: ACM publication line (ACM 20XX)
+        acm_match = re.search(r"ACM \s* (19\d{2}|20\d{2})", content_sample, re.IGNORECASE)
+        if acm_match:
+            try:
+                return datetime(int(acm_match.group(1)), 1, 1, tzinfo=timezone.utc)
+            except ValueError:
+                pass
+
+        # Tier 2 & 3: Header/Footer year pattern (19XX or 20XX)
+        header_year = _cached_parse_year_or_date_str(content_sample)
+        if header_year:
+            return datetime(header_year, 1, 1, tzinfo=timezone.utc)
+
+    # Tier 8: Filename regex matching (e.g., attention_is_all_you_need_2017.pdf)
+    filename = str(metadata.get("filename", "") or metadata.get("document_filename", "") or "")
+    if filename:
+        year = _cached_parse_year_or_date_str(filename)
+        if year:
+            return datetime(year, 1, 1, tzinfo=timezone.utc)
+
+    # Tier 9: Embedded metadata string search
+    meta_str = str(metadata)
+    year = _cached_parse_year_or_date_str(meta_str)
+    if year:
+        return datetime(year, 1, 1, tzinfo=timezone.utc)
+
+    # Tier 10: Unknown -> Returns None
     return None

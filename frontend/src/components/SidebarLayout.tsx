@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, MessageSquareText, Files, Settings, LogOut, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, MessageSquareText, Files, BarChart2, Layers, BookOpen, Settings, LogOut, ShieldAlert } from 'lucide-react';
 import '../App.css';
 
 const SidebarLayout = () => {
@@ -34,6 +34,18 @@ const SidebarLayout = () => {
           <NavLink to="/documents" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
             <Files size={20} />
             Documents
+          </NavLink>
+          <NavLink to="/benchmark" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+            <BarChart2 size={20} />
+            Benchmark
+          </NavLink>
+          <NavLink to="/experiments" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+            <Layers size={20} />
+            Experiments
+          </NavLink>
+          <NavLink to="/research" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+            <BookOpen size={20} />
+            Research
           </NavLink>
           <NavLink to="/settings" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
             <Settings size={20} />

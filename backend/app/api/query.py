@@ -1,3 +1,4 @@
+import time
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel
@@ -6,6 +7,7 @@ from ..services.llm_service import generate_answer
 from ..services.rrfe.engine import rrfe_engine
 from ..services.dataset_generator.engine import dataset_engine
 from ..services.predictor.inference import predictor_engine
+from ..core.query_store import record_query_execution
 
 router = APIRouter()
 
@@ -16,7 +18,7 @@ class QueryRequest(BaseModel):
 
 class Source(BaseModel):
     filename: str
-    trri: float
+    trri: Optional[float] = None
 
 
 class FeatureExplanation(BaseModel):
@@ -39,7 +41,7 @@ class QueryResponse(BaseModel):
     risk_level: str
     # NOTE: CQS removed — it was mathematically dependent on TRRI
     # (trri + 0.05) and therefore scientifically invalid as an independent metric.
-    trri: float
+    trri: Optional[float] = None
     sources: List[Source]
     rrfe_features: Dict[str, Optional[float]]
     # Full per-feature explainability cards
@@ -59,8 +61,12 @@ def run_dataset_generation_task(query: str, docs: list, rrfe_result) -> None:
 
 @router.post("/chat", response_model=QueryResponse)
 async def chat_endpoint(request: QueryRequest, background_tasks: BackgroundTasks):
+    t_start = time.perf_counter()
+
     # 1. Retrieve chunks
+    t0 = time.perf_counter()
     results = search_documents(request.query, k=3)
+    t_retrieval_ms = round((time.perf_counter() - t0) * 1000, 2)
     docs = [doc for doc, _ in results]
 
     context_text = ""
@@ -69,11 +75,13 @@ async def chat_endpoint(request: QueryRequest, background_tasks: BackgroundTasks
         context_text += doc.page_content + "\n\n"
         sources_data.append(Source(
             filename=doc.metadata.get("filename", "Unknown"),
-            trri=0.85,
+            trri=None,
         ))
 
     # 2. Extract RRFE features + explanations
+    t0 = time.perf_counter()
     rrfe_result = rrfe_engine.extract_features(request.query, docs)
+    t_rrfe_ms = round((time.perf_counter() - t0) * 1000, 2)
 
     # 3. Build explainability cards
     explanations: List[FeatureExplanation] = [
@@ -88,10 +96,14 @@ async def chat_endpoint(request: QueryRequest, background_tasks: BackgroundTasks
     ]
 
     # 4. Predict TRRI
+    t0 = time.perf_counter()
     inference_response = predictor_engine.predict(rrfe_result.features.model_dump())
+    t_pred_ms = round((time.perf_counter() - t0) * 1000, 2)
     trri = inference_response.trri
 
-    if trri < 0.5:
+    if trri is None:
+        risk_level = "unavailable"
+    elif trri < 0.5:
         risk_level = "high"
     elif trri < 0.8:
         risk_level = "medium"
@@ -99,9 +111,30 @@ async def chat_endpoint(request: QueryRequest, background_tasks: BackgroundTasks
         risk_level = "low"
 
     # 5. Generate answer
+    t0 = time.perf_counter()
     answer = generate_answer(request.query, context_text)
+    t_gen_ms = round((time.perf_counter() - t0) * 1000, 2)
 
-    # 6. Background dataset accumulation
+    t_total_ms = round((time.perf_counter() - t_start) * 1000, 2)
+
+    exec_metadata = dict(rrfe_result.execution_metadata)
+    exec_metadata["profiler"] = {
+        "retrieval_ms": t_retrieval_ms,
+        "rrfe_ms": t_rrfe_ms,
+        "predictor_ms": t_pred_ms,
+        "generation_ms": t_gen_ms,
+        "total_ms": t_total_ms,
+    }
+
+    # 6. Record query telemetry
+    record_query_execution(
+        query=request.query,
+        trri=trri,
+        risk_level=risk_level,
+        rrfe_features=rrfe_result.features.model_dump(),
+    )
+
+    # 7. Background dataset accumulation
     background_tasks.add_task(
         run_dataset_generation_task, request.query, docs, rrfe_result
     )
@@ -113,7 +146,7 @@ async def chat_endpoint(request: QueryRequest, background_tasks: BackgroundTasks
         sources=sources_data,
         rrfe_features=rrfe_result.features.model_dump(),
         rrfe_explanations=explanations,
-        execution_metadata=rrfe_result.execution_metadata,
+        execution_metadata=exec_metadata,
         predictor_metadata=PredictorMetadataResponse(
             model_version=inference_response.metadata.model_version,
             prediction_latency_ms=inference_response.metadata.prediction_latency_ms,
