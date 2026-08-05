@@ -8,10 +8,32 @@ Deliberately contains NO chromadb import so that evaluation modules
 DefaultEmbeddingFunction / ONNXMiniLM_L6_V2 initialisation.
 """
 from typing import List
+import requests
 from langchain_community.embeddings import OllamaEmbeddings
 from app.core.config import global_config
 
 __all__ = ["get_embeddings", "embeddings"]
+
+class BatchedOllamaEmbeddings(OllamaEmbeddings):
+    """
+    Performance-optimized OllamaEmbeddings subclass.
+    Uses Ollama's native /api/embed REST endpoint to send texts in parallel HTTP
+    batches rather than standard OllamaEmbeddings' 1-by-1 sequential HTTP POSTs.
+    """
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        if not texts:
+            return []
+        url = self.base_url.rstrip("/") + "/api/embed"
+        all_embeddings: List[List[float]] = []
+        batch_size = 64
+        for i in range(0, len(texts), batch_size):
+            chunk = texts[i : i + batch_size]
+            resp = requests.post(url, json={"model": self.model, "input": chunk})
+            resp.raise_for_status()
+            data = resp.json()
+            all_embeddings.extend(data.get("embeddings", []))
+        return all_embeddings
+
 
 _embeddings: OllamaEmbeddings | None = None
 
@@ -20,7 +42,7 @@ def get_embeddings() -> OllamaEmbeddings:
     """Return the singleton OllamaEmbeddings instance (lazy init)."""
     global _embeddings
     if _embeddings is None:
-        _embeddings = OllamaEmbeddings(
+        _embeddings = BatchedOllamaEmbeddings(
             base_url=global_config.OLLAMA_HOST,
             model=global_config.EMBEDDING_MODEL,
         )

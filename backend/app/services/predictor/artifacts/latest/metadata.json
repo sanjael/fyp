@@ -1,12 +1,12 @@
 {
     "model_version": "v1.0.latest",
-    "training_date": "2026-08-03T19:17:50.643089",
+    "training_date": "2026-08-05T07:07:31.582882",
     "optuna_params": {
         "max_depth": 3,
-        "learning_rate": 0.026723154952168017,
-        "n_estimators": 341,
-        "subsample": 0.8047452376352147,
-        "colsample_bytree": 0.7055520467375299,
+        "learning_rate": 0.09247093424328846,
+        "n_estimators": 458,
+        "subsample": 0.8826604537509889,
+        "colsample_bytree": 0.9210891212346493,
         "objective": "reg:squarederror",
         "eval_metric": "rmse"
     },
@@ -19,11 +19,11 @@
     ],
     "feature_count": 5,
     "metrics": {
-        "mae": 0.0031,
-        "rmse": 0.0039,
-        "r2_score": 0.9922,
-        "cv_rmse_5fold": 0.0081,
-        "mean_predicted": 0.7589,
-        "test_samples": 30
+        "mae": 0.0015,
+        "rmse": 0.0019,
+        "r2_score": 0.9992,
+        "cv_rmse_5fold": 0.004,
+        "mean_predicted": 0.753,
+        "test_samples": 150
     }
 }
