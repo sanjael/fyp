@@ -33,20 +33,32 @@ _chroma_client: chromadb.ClientAPI | None = None
 
 
 def get_chroma_client() -> chromadb.ClientAPI:
-    """Return the singleton ChromaDB client (lazy init, HTTP -> PersistentClient fallback)."""
+    """Return the singleton ChromaDB client (lazy init, configurable HTTP vs PersistentClient)."""
     global _chroma_client
     if _chroma_client is None:
-        try:
-            client = chromadb.HttpClient(
-                host=global_config.CHROMA_HOST,
-                port=global_config.CHROMA_PORT,
-            )
-            client.heartbeat()
-            _chroma_client = client
-        except Exception as e:
-            logger.warning(f"ChromaDB HTTP unavailable ({e}). Falling back to PersistentClient.")
+        from chromadb.config import Settings
+        chroma_settings = Settings(anonymized_telemetry=global_config.ENABLE_CHROMA_TELEMETRY)
+        persist_path = os.path.join(os.path.dirname(__file__), "..", "..", "chroma")
+
+        if global_config.USE_CHROMA_HTTP:
+            try:
+                client = chromadb.HttpClient(
+                    host=global_config.CHROMA_HOST,
+                    port=global_config.CHROMA_PORT,
+                    settings=chroma_settings,
+                )
+                client.heartbeat()
+                _chroma_client = client
+            except Exception as e:
+                logger.warning(f"ChromaDB HTTP unavailable ({e}). Falling back to PersistentClient.")
+                _chroma_client = chromadb.PersistentClient(
+                    path=persist_path,
+                    settings=chroma_settings,
+                )
+        else:
             _chroma_client = chromadb.PersistentClient(
-                path=os.path.join(os.path.dirname(__file__), "..", "..", "chroma")
+                path=persist_path,
+                settings=chroma_settings,
             )
     return _chroma_client
 

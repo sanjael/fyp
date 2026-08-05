@@ -24,7 +24,13 @@ class Explainer:
             shap_values = explainer.shap_values(features_array)
             
             # Map SHAP values to feature names
-            feature_names = ["tff", "scf", "ecf", "esf"]
+            feature_names = [
+                "temporal_freshness",
+                "temporal_availability",
+                "source_credibility",
+                "evidence_consistency",
+                "evidence_sufficiency",
+            ]
             
             # For a single prediction, shap_values is an array of shape (1, num_features)
             if len(shap_values.shape) == 2:

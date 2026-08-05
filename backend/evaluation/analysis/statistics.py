@@ -50,6 +50,7 @@ class SignificanceResult:
     test: str             # "wilcoxon" | "ttest"
     significant: bool     # p < 0.05
     effect_direction: str # "improvement" | "degradation" | "neutral"
+    cohens_d: float = 0.0 # Effect size magnitude
 
 
 @dataclass
@@ -152,6 +153,10 @@ class StatisticalAnalyser:
             stat, p = stats.ttest_rel(r, b)
             test_name = "paired_ttest"
 
+        # Compute Cohen's d effect size
+        s_pooled = math.sqrt((float(np.var(r, ddof=1)) + float(np.var(b, ddof=1))) / 2.0) if len(r) > 1 else 1.0
+        d_val = round((r_mean - b_mean) / s_pooled, 4) if s_pooled > 0 else 0.0
+
         direction = "improvement" if delta > 0.01 else ("degradation" if delta < -0.01 else "neutral")
         return SignificanceResult(
             metric=metric,
@@ -163,6 +168,7 @@ class StatisticalAnalyser:
             test=test_name,
             significant=float(p) < 0.05,
             effect_direction=direction,
+            cohens_d=d_val,
         )
 
     # ------------------------------------------------------------------

@@ -115,6 +115,17 @@ Invoke-RestMethod -Uri "http://localhost:8080/api/v1/query/chat" `
   -Body '{"query": "What are the recent advancements in solar cell efficiency?"}'
 ```
 
+### 6. Execute End-to-End Dataset & ML Pipeline
+
+Run the complete 8-step dataset acquisition, ChromaDB indexing, dataset generation, validation, model training, residual plotting, and artifact serialization pipeline with a single command:
+
+```powershell
+cd backend
+python run_dataset_pipeline.py --samples 50
+```
+
+This generates `exported_datasets/training_dataset.csv`, `exported_datasets/dataset_report.md`, and saves the trained model to `app/services/predictor/artifacts/latest_model.pkl`.
+
 ---
 
 ## Motivation
