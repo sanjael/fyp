@@ -113,11 +113,14 @@ class TestTemporalAvailabilityExtractor:
         assert result.score == 1.0
         assert result.confidence == 1.0
 
-    def test_estimated_when_only_ingestion_date(self):
+    def test_unknown_when_only_ingestion_date(self):
+        """Regression (Tier-9 leakage fix): ingestion_date is a pipeline artifact,
+        NOT a publication provenance signal.  Must yield Unknown, score=0.0."""
         doc = _doc(ingestion_date=_iso(0))
         result = self.ext.extract("q", [doc])
-        assert result.availability_status == "Estimated"
-        assert result.score == 0.5
+        assert result.availability_status == "Unknown"
+        assert result.score == 0.0
+        assert result.confidence == 0.0
 
     def test_estimated_when_year_in_filename(self):
         doc = _doc(filename="report_2023_annual.pdf")
@@ -131,10 +134,13 @@ class TestTemporalAvailabilityExtractor:
         assert result.score == 0.0
         assert result.confidence == 0.0
 
-    def test_available_takes_priority_over_estimated(self):
+    def test_available_takes_priority_over_unknown(self):
+        """Available chunk elevates aggregate status; ingestion_date chunk is Unknown."""
         docs = [_doc(document_date=_iso(5)), _doc(ingestion_date=_iso(0))]
         result = self.ext.extract("q", docs)
         assert result.availability_status == "Available"
+        # Confidence: 1/2 chunks Available (weight=1.0), 1/2 Unknown (weight=0.0) → 0.5
+        assert result.confidence == pytest.approx(0.5, abs=0.01)
 
     def test_empty_docs(self):
         result = self.ext.extract("q", [])
@@ -153,6 +159,72 @@ class TestTemporalAvailabilityExtractor:
         assert r_old.availability_status == "Available"
         assert r_new.availability_status == "Available"
         assert r_old.score == r_new.score
+
+
+# ---------------------------------------------------------------------------
+# Temporal Availability — Regression Tests (scientific specification)
+# ---------------------------------------------------------------------------
+
+class TestTemporalAvailabilityRegression:
+    ext = TemporalAvailabilityExtractor()
+
+    def test_case1_ingestion_date_only_is_unknown(self):
+        """Case 1: Only ingestion_date → Unknown, score=0.0, confidence=0.0.
+        Validates that the ingestion_date Estimated heuristic has been removed."""
+        doc = _doc(
+            filename="eval_doc.txt",
+            chunk_index=0,
+            ingestion_date="2026-08-06T09:30:00.123456",
+        )
+        result = self.ext.extract("q", [doc])
+        assert result.availability_status == "Unknown"
+        assert result.score == 0.0
+        assert result.confidence == 0.0
+        assert "ingestion" in result.reason.lower() or "trustworthy" in result.reason.lower()
+
+    def test_case2_publication_date_is_available(self):
+        """Case 2: Explicit publication_date → Available, score=1.0, confidence=1.0."""
+        doc = _doc(
+            chunk_index=0,
+            ingestion_date="2026-08-06T09:30:00",
+            publication_date="2019-03-15",
+        )
+        result = self.ext.extract("q", [doc])
+        assert result.availability_status == "Available"
+        assert result.score == 1.0
+        assert result.confidence == 1.0
+        assert "2019-03-15" in result.reason
+
+    def test_case3_tier_b_body_text_year_is_estimated(self):
+        """Case 3: Year in document body text with no metadata date → Estimated, score=0.5.
+        Validates Tier-B body text heuristic (the live Tier-B path)."""
+        doc = Document(
+            page_content="2019 Clinical Guidelines for Treatment of Hypertension",
+            metadata={"chunk_index": 0, "ingestion_date": "2026-08-06T09:30:00"},
+        )
+        result = self.ext.extract("q", [doc])
+        assert result.availability_status == "Estimated"
+        assert result.score == 0.5
+        assert "2019" in result.reason
+
+    def test_case4_mixed_chunks_aggregation(self):
+        """Case 4: Mixed chunks — 1 Available, 1 Estimated (body text), 1 Unknown.
+        Expected: status=Available, score=1.0.
+        Confidence = mean(1.0, 0.5, 0.0) = 0.5."""
+        docs = [
+            _doc(publication_date="2020-01-01"),          # Tier-A → Available  (weight=1.0)
+            Document(                                      # Tier-B → Estimated  (weight=0.5)
+                page_content="2021 Annual Report on Outcomes",
+                metadata={"chunk_index": 1, "ingestion_date": "2026-08-06T09:30:00"},
+            ),
+            _doc(ingestion_date="2026-08-06T09:30:00"),  # Tier-C → Unknown    (weight=0.0)
+        ]
+        result = self.ext.extract("q", docs)
+        assert result.availability_status == "Available"
+        assert result.score == 1.0
+        # confidence = mean(1.0, 0.5, 0.0) = 0.5
+        assert result.confidence == pytest.approx(0.5, abs=0.01)
+        assert "1/3" in result.reason
 
 
 # ---------------------------------------------------------------------------

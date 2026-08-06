@@ -151,7 +151,7 @@ def generate_dataset(max_samples_per_dataset: int = 50, top_k: int = 3):
                         "top_k": top_k,
                         "retrieved_doc_ids": json.dumps(retrieved_ids),
                         "temporal_freshness": feats["temporal_freshness"] if feats.get("temporal_freshness") is not None else 0.5,
-                        "temporal_availability": feats["temporal_availability"] if feats.get("temporal_availability") is not None else 1.0,
+                        "temporal_availability": feats["temporal_availability"] if feats.get("temporal_availability") is not None else 0.0,
                         "source_credibility": feats["source_credibility"] if feats.get("source_credibility") is not None else 0.8,
                         "evidence_consistency": feats["evidence_consistency"] if feats.get("evidence_consistency") is not None else 0.5,
                         "evidence_sufficiency": feats["evidence_sufficiency"] if feats.get("evidence_sufficiency") is not None else 0.5,
