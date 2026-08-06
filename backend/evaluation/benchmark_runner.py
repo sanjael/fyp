@@ -32,6 +32,12 @@ import time
 from collections import defaultdict
 from dataclasses import asdict
 from typing import Dict, List, Optional
+os.environ["NO_ERROR_REPORTING"] = "Y"
+
+try:
+    import onnxruntime
+except ImportError:
+    pass
 
 # Ensure backend root is on path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))

@@ -2,12 +2,24 @@ from typing import List, Dict
 from langchain_core.documents import Document
 
 try:
-    from deepeval.metrics import FaithfulnessMetric, AnswerRelevancyMetric, ContextualPrecisionMetric
     from deepeval.test_case import LLMTestCase
     from ....core.evaluator_provider.factory import get_evaluator_provider
+    try:
+        from deepeval.metrics import FaithfulnessMetric
+    except ImportError:
+        from deepeval.metrics.ragas_metric import RagasFaithfulnessMetric as FaithfulnessMetric
+
+    try:
+        from deepeval.metrics import AnswerRelevancyMetric
+    except ImportError:
+        from deepeval.metrics.answer_relevancy import AnswerRelevancyMetric
+
+    try:
+        from deepeval.metrics import ContextualPrecisionMetric
+    except ImportError:
+        from deepeval.metrics.ragas_metric import RagasContextualRelevancyMetric as ContextualPrecisionMetric
+
     DEEPEVAL_AVAILABLE = True
-
-
 except ImportError:
     DEEPEVAL_AVAILABLE = False
 
