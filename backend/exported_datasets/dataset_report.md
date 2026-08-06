@@ -10,8 +10,8 @@
 
 | Feature | Mean | Std | Min | Max | Median |
 |---|---|---|---|---|---|
-| temporal_freshness | 0.2638 | 0.1819 | 0.0000 | 0.6235 | 0.2902 |
-| temporal_availability | 1.0000 | 0.0000 | 1.0000 | 1.0000 | 1.0000 |
+| temporal_freshness | 0.2307 | 0.2506 | 0.0000 | 1.0000 | 0.0000 |
+| temporal_availability | 0.2690 | 0.2514 | 0.0000 | 1.0000 | 0.5000 |
 | source_credibility | 0.4500 | 0.0000 | 0.4500 | 0.4500 | 0.4500 |
 | evidence_consistency | 0.7202 | 0.0859 | 0.4869 | 0.9283 | 0.7298 |
 | evidence_sufficiency | 0.7733 | 0.0691 | 0.5660 | 0.9295 | 0.7777 |
@@ -44,12 +44,12 @@
 
 |                       |   temporal_freshness |   temporal_availability |   source_credibility |   evidence_consistency |   evidence_sufficiency |     trri |
 |:----------------------|---------------------:|------------------------:|---------------------:|-----------------------:|-----------------------:|---------:|
-| temporal_freshness    |               1      |                     nan |                  nan |                 0.4859 |                 0.5364 |   0.5497 |
-| temporal_availability |             nan      |                     nan |                  nan |               nan      |               nan      | nan      |
-| source_credibility    |             nan      |                     nan |                  nan |               nan      |               nan      | nan      |
-| evidence_consistency  |               0.4859 |                     nan |                  nan |                 1      |                 0.7431 |   0.9202 |
-| evidence_sufficiency  |               0.5364 |                     nan |                  nan |                 0.7431 |                 1      |   0.9458 |
-| trri                  |               0.5497 |                     nan |                  nan |                 0.9202 |                 0.9458 |   1      |
+| temporal_freshness    |               1      |                 -0.9673 |                  nan |                 0.4578 |                 0.4767 |   0.5011 |
+| temporal_availability |              -0.9673 |                  1      |                  nan |                -0.4612 |                -0.4781 |  -0.5036 |
+| source_credibility    |             nan      |                nan      |                  nan |               nan      |               nan      | nan      |
+| evidence_consistency  |               0.4578 |                 -0.4612 |                  nan |                 1      |                 0.7431 |   0.9202 |
+| evidence_sufficiency  |               0.4767 |                 -0.4781 |                  nan |                 0.7431 |                 1      |   0.9458 |
+| trri                  |               0.5011 |                 -0.5036 |                  nan |                 0.9202 |                 0.9458 |   1      |
 
 ---
 

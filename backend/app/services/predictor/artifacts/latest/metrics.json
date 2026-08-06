@@ -1,8 +1,8 @@
 {
-    "mae": 0.0015,
-    "rmse": 0.0019,
-    "r2_score": 0.9992,
+    "mae": 0.0017,
+    "rmse": 0.0022,
+    "r2_score": 0.9989,
     "cv_rmse_5fold": 0.004,
-    "mean_predicted": 0.753,
+    "mean_predicted": 0.7529,
     "test_samples": 150
 }
