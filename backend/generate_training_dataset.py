@@ -89,7 +89,7 @@ def generate_dataset(max_samples_per_dataset: int = 50, top_k: int = 3):
                 sample_chunks = []
                 for doc in unified.documents:
                     if doc and doc.strip():
-                        c_list = chunk_document(doc, filename=f"{ds_name}_doc.txt")
+                        c_list = chunk_document(doc, filename=f"{ds_name}_doc.txt", extra_metadata=unified.metadata)
                         for c in c_list:
                             c.metadata["sample_id"] = unified.record_id
                         sample_chunks.extend(c_list)

@@ -16,28 +16,34 @@ def extract_text_from_pdf(file_path: str) -> str:
         print(f"Error extracting text from {file_path}: {e}")
     return text
 
-def chunk_document(text: str, filename: str) -> list[Document]:
+def chunk_document(text: str, filename: str, extra_metadata: dict = None) -> list[Document]:
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=100,
         length_function=len,
     )
     
-    # We add metadata like filename and ingestion date for temporal tracking
+    # We add metadata like filename, ingestion date, and document provenance for tracking
     chunks = text_splitter.split_text(text)
     
     documents = []
     current_date = datetime.now().isoformat()
     
+    base_metadata = {
+        "filename": filename,
+        "ingestion_date": current_date
+    }
+    if extra_metadata and isinstance(extra_metadata, dict):
+        base_metadata.update(extra_metadata)
+    
     for i, chunk in enumerate(chunks):
+        doc_meta = base_metadata.copy()
+        doc_meta["chunk_index"] = i
         doc = Document(
             page_content=chunk,
-            metadata={
-                "filename": filename,
-                "chunk_index": i,
-                "ingestion_date": current_date
-            }
+            metadata=doc_meta
         )
         documents.append(doc)
         
     return documents
+
