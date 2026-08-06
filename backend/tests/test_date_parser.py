@@ -40,3 +40,75 @@ def test_extract_doc_datetime_filename_fallback():
     dt = extract_doc_datetime(meta)
     assert dt is not None
     assert dt.year == 2021
+
+
+# ---------------------------------------------------------------------------
+# Regression tests: Tier 9 temporal leakage fix
+# ---------------------------------------------------------------------------
+
+def test_tier9_ingestion_date_only_returns_none():
+    """Case 1: Metadata with only internal fields must NOT leak ingestion_date year."""
+    meta = {
+        "filename": "eval_doc.txt",
+        "chunk_index": 0,
+        "ingestion_date": "2026-08-06T09:30:00.123456",
+    }
+    dt = extract_doc_datetime(meta)
+    assert dt is None, (
+        f"Expected None when only ingestion_date is present, got {dt}"
+    )
+
+
+def test_tier9_publication_date_still_works():
+    """Case 2: Explicit publication_date must still be resolved (Tier 1)."""
+    meta = {
+        "filename": "eval_doc.txt",
+        "chunk_index": 0,
+        "ingestion_date": "2026-08-06T09:30:00",
+        "publication_date": "2019-03-15",
+    }
+    dt = extract_doc_datetime(meta)
+    assert dt is not None
+    assert dt.year == 2019
+    assert dt.month == 3
+    assert dt.day == 15
+
+
+def test_tier9_description_field_extracts_year():
+    """Case 3: Legitimate metadata field 'description' should still be parsed by Tier 9."""
+    meta = {
+        "filename": "eval_doc.txt",
+        "chunk_index": 0,
+        "ingestion_date": "2026-08-06T09:30:00",
+        "description": "The paper was published in 2022.",
+    }
+    dt = extract_doc_datetime(meta)
+    assert dt is not None
+    assert dt.year == 2022
+
+
+def test_tier9_publication_date_preferred_over_ingestion():
+    """Case 4: When both ingestion_date and publication_date exist, publication_date wins."""
+    meta = {
+        "filename": "eval_doc.txt",
+        "chunk_index": 0,
+        "ingestion_date": "2026-08-06T09:30:00",
+        "publication_date": "2019-01-01",
+    }
+    dt = extract_doc_datetime(meta)
+    assert dt is not None
+    assert dt.year == 2019, (
+        f"Expected publication year 2019, got {dt.year} (possible ingestion_date leakage)"
+    )
+
+
+def test_tier9_sample_id_with_no_year_returns_none():
+    """Edge case: sample_id containing hex/numeric should not be misinterpreted as a year."""
+    meta = {
+        "filename": "eval_doc.txt",
+        "chunk_index": 0,
+        "ingestion_date": "2026-08-06T09:30:00",
+        "sample_id": "5abe65e25542993f32c2a101",
+    }
+    dt = extract_doc_datetime(meta)
+    assert dt is None

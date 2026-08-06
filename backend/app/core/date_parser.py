@@ -188,10 +188,21 @@ def extract_doc_datetime(metadata: Dict[str, Any], text_content: Optional[str] =
             return datetime(year, 1, 1, tzinfo=timezone.utc)
 
     # Tier 9: Embedded metadata string search
-    meta_str = str(metadata)
-    year = _cached_parse_year_or_date_str(meta_str)
-    if year:
-        return datetime(year, 1, 1, tzinfo=timezone.utc)
+    # Exclude internal bookkeeping fields that contain runtime timestamps
+    # (e.g. ingestion_date, chunk_index) to prevent temporal leakage.
+    _TIER9_EXCLUDE_KEYS = {
+        "ingestion_date", "ingestion_timestamp", "ingest_time",
+        "chunk_index", "chunk_id",
+        "created_at", "updated_at", "modified_at",
+        "filename", "document_filename",  # already handled by Tier 8
+        "embedding_model", "collection_name",
+    }
+    filtered_meta = {k: v for k, v in metadata.items() if k not in _TIER9_EXCLUDE_KEYS}
+    if filtered_meta:
+        meta_str = str(filtered_meta)
+        year = _cached_parse_year_or_date_str(meta_str)
+        if year:
+            return datetime(year, 1, 1, tzinfo=timezone.utc)
 
     # Tier 10: Unknown -> Returns None
     return None
