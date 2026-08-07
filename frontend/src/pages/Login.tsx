@@ -13,9 +13,11 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     try {
       const response = await axios.post('/api/v1/auth/login', { email, password });
       localStorage.setItem('token', response.data.access_token);
+      localStorage.setItem('user_email', email);
       navigate('/');
     } catch (err) {
       setError('Invalid credentials or server error.');
@@ -23,6 +25,7 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>

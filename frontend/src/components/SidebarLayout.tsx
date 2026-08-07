@@ -1,13 +1,16 @@
-import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, MessageSquareText, Files, BarChart2, Layers, BookOpen, Settings, LogOut, ShieldAlert } from 'lucide-react';
 import '../App.css';
 
+
 const SidebarLayout = () => {
   const navigate = useNavigate();
+  const userEmail = localStorage.getItem('user_email') || 'User';
+  const initial = userEmail ? userEmail[0].toUpperCase() : 'U';
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user_email');
     navigate('/login');
   };
 
@@ -85,12 +88,13 @@ const SidebarLayout = () => {
           <h2 className="page-title">Temporal-Aware Context Engine</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--accent-green)', boxShadow: '0 0 10px var(--accent-green)' }}></div>
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>System Online</span>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', marginLeft: '10px' }}>
-              A
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{userEmail}</span>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', marginLeft: '10px' }} title={userEmail}>
+              {initial}
             </div>
           </div>
         </header>
+
         
         <div className="page-container animate-fade-in">
           <Outlet />

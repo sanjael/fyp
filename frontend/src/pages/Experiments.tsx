@@ -1,5 +1,5 @@
-import React from 'react';
-import { Layers, Database, Cpu, CheckCircle } from 'lucide-react';
+import { Layers, Database } from 'lucide-react';
+
 
 interface ExperimentRun {
   id: string;

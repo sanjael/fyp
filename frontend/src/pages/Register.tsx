@@ -13,15 +13,21 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     try {
-      await axios.post('/api/v1/auth/register', { email, password });
-      navigate('/login');
+      const response = await axios.post('/api/v1/auth/register', { email, password });
+      if (response.data.access_token) {
+        localStorage.setItem('token', response.data.access_token);
+      }
+      localStorage.setItem('user_email', email);
+      navigate('/');
     } catch (err) {
       setError('Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>

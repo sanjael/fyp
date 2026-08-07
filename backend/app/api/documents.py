@@ -8,10 +8,29 @@ from ..services.vector_store import add_documents_to_chroma, delete_documents_by
 
 router = APIRouter()
 
-# In-memory storage for MVP
-UPLOADED_DOCS = [
-    {"id": 1, "name": "attention_is_all_you_need.pdf", "date": "2023-10-12", "chunks": 145, "status": "processed"},
-]
+import json
+
+METADATA_FILE = os.path.join("uploads", "documents_metadata.json")
+
+def load_uploaded_docs() -> list[dict]:
+    if os.path.exists(METADATA_FILE):
+        try:
+            with open(METADATA_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
+
+def save_uploaded_docs():
+    os.makedirs("uploads", exist_ok=True)
+    try:
+        with open(METADATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(UPLOADED_DOCS, f, indent=2)
+    except Exception as e:
+        print(f"Error saving metadata: {e}")
+
+UPLOADED_DOCS = load_uploaded_docs()
+
 
 class DocResponse(BaseModel):
     id: int
@@ -35,12 +54,15 @@ def process_document_task(file_path: str, doc_id: int, filename: str):
                 doc["chunks"] = len(chunks)
                 doc["status"] = "processed"
                 break
+        save_uploaded_docs()
     except Exception as e:
         print(f"Error processing doc: {e}")
         for doc in UPLOADED_DOCS:
             if doc["id"] == doc_id:
                 doc["status"] = "failed"
                 break
+        save_uploaded_docs()
+
 
 @router.post("/upload")
 async def upload_document(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
@@ -59,6 +81,7 @@ async def upload_document(background_tasks: BackgroundTasks, file: UploadFile = 
         "status": "processing"
     }
     UPLOADED_DOCS.append(new_doc)
+    save_uploaded_docs()
     
     # Run processing in background
     background_tasks.add_task(process_document_task, file_path, doc_id, file.filename)
@@ -92,5 +115,7 @@ async def delete_document(doc_id: int):
             pass
 
     UPLOADED_DOCS = [doc for doc in UPLOADED_DOCS if doc["id"] != doc_id]
+    save_uploaded_docs()
 
     return {"message": "Document deleted successfully", "doc_id": doc_id}
+

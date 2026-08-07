@@ -14,12 +14,11 @@ import Research from './pages/Research';
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('token');
   if (!token) {
-    // For demo purposes, if there's no token, we still let them in to see the UI.
-    // In production, uncomment the next line:
-    // return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />;
   }
   return <>{children}</>;
 };
+
 
 function App() {
   return (

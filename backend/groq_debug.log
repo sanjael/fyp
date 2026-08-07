@@ -7684,3 +7684,171 @@ ORIGINAL JSON:
 NORMALIZED JSON:
 [{"reason": "The provided context directly addresses the question by mentioning a study testing for a relationship between blood pressure reactions to stressors and stressor-induced patterns of functional neural activation, which implies the existence of a functional neural correlate of individual differences in cardiovascular reactivity.", "verdict": 1}]
 ==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly addresses the question by mentioning a study testing for a relationship between blood pressure reactions to stressors and stressor-induced patterns of functional neural activation, which implies the existence of a functional neural correlate of individual differences in cardiovascular reactivity.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly addresses the question by mentioning a study testing for a relationship between blood pressure reactions to stressors and stressor-induced patterns of functional neural activation, which implies the existence of a functional neural correlate of individual differences in cardiovascular reactivity.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context discusses the relationship between cardiovascular reactivity and functional neural activation, which is relevant to the question about whether there is a functional neural correlate of individual differences in cardiovascular reactivity.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context discusses the relationship between cardiovascular reactivity and functional neural activation, which is relevant to the question about whether there is a functional neural correlate of individual differences in cardiovascular reactivity.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context directly supports the answer by mentioning that the Omron T9P automated blood pressure monitor was tested for accuracy in pregnant women using mercury sphygmomanometry as a reference, indicating its suitability for use during pregnancy.", "verdict": 1}]
+==================================================
+
+[NORMALIZER MODIFIED OUTPUT]
+ORIGINAL JSON:
+{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}
+NORMALIZED JSON:
+[{"reason": "The provided context was useful as it directly mentions the Omron T9P device and its use in pregnant women, supporting the answer that it can be used during pregnancy.", "verdict": 1}]
+==================================================

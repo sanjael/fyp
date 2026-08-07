@@ -12,14 +12,28 @@ class UserCreate(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    email: str
 
-@router.post("/register", response_model=dict, status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(user: UserCreate):
-    return {"message": "User registered successfully", "email": user.email}
+    return {
+        "message": "User registered successfully",
+        "access_token": f"jwt-{user.email}-token",
+        "token_type": "bearer",
+        "email": user.email
+    }
 
 @router.post("/login", response_model=Token)
 async def login(user: UserCreate):
-    return {"access_token": "dummy-jwt-token-replace-me", "token_type": "bearer"}
+    return {
+        "access_token": f"jwt-{user.email}-token",
+        "token_type": "bearer",
+        "email": user.email
+    }
+
+@router.get("/me")
+async def get_me(email: str = "user@ragguard.ai"):
+    return {"email": email}
 
 @router.post("/refresh")
 async def refresh_token():
@@ -28,3 +42,4 @@ async def refresh_token():
 @router.post("/logout")
 async def logout():
     return {"message": "Logged out successfully"}
+
