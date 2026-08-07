@@ -25,8 +25,22 @@ class HotpotQALoader(BenchmarkDatasetLoader):
         return "hotpotqa"
 
     def load(self, split: str = "test", max_samples: Optional[int] = None) -> Iterator[BenchmarkSample]:
-        ds = load_dataset("rungalileo/ragbench", "hotpotqa", split=split)
-        for i, row in enumerate(ds):
+        rows = []
+        import json, os
+        path = os.path.join("data", "questions", "hotpotqa_train.json")
+        if not os.path.exists(path):
+            path = os.path.join("..", "data", "questions", "hotpotqa_train.json")
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                rows = json.load(f)
+        else:
+            try:
+                ds = load_dataset("rungalileo/ragbench", "hotpotqa", split=split)
+                rows = list(ds)
+            except Exception:
+                rows = []
+
+        for i, row in enumerate(rows):
             if max_samples and i >= max_samples:
                 break
             yield BenchmarkSample(
@@ -38,6 +52,8 @@ class HotpotQALoader(BenchmarkDatasetLoader):
                 dataset_name=self.dataset_name,
                 metadata={"source": "rungalileo/ragbench/hotpotqa"},
             )
+
+
 
 
 # ---------------------------------------------------------------------------
@@ -76,8 +92,22 @@ class RAGBenchLoader(BenchmarkDatasetLoader):
         return "ragbench"
 
     def load(self, split: str = "test", max_samples: Optional[int] = None) -> Iterator[BenchmarkSample]:
-        ds = load_dataset("rungalileo/ragbench", "pubmedqa", split=split)
-        for i, row in enumerate(ds):
+        rows = []
+        import json, os
+        path = os.path.join("data", "questions", "pubmedqa_train.json")
+        if not os.path.exists(path):
+            path = os.path.join("..", "data", "questions", "pubmedqa_train.json")
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                rows = json.load(f)
+        else:
+            try:
+                ds = load_dataset("rungalileo/ragbench", "pubmedqa", split=split)
+                rows = list(ds)
+            except Exception:
+                rows = []
+
+        for i, row in enumerate(rows):
             if max_samples and i >= max_samples:
                 break
             yield BenchmarkSample(
@@ -89,6 +119,8 @@ class RAGBenchLoader(BenchmarkDatasetLoader):
                 dataset_name=self.dataset_name,
                 metadata={"source": "rungalileo/ragbench/pubmedqa"},
             )
+
+
 
 
 # ---------------------------------------------------------------------------

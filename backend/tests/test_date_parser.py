@@ -112,3 +112,81 @@ def test_tier9_sample_id_with_no_year_returns_none():
     }
     dt = extract_doc_datetime(meta)
     assert dt is None
+
+
+# ---------------------------------------------------------------------------
+# Regression tests: Integer-year date parsing P0 fix
+# ---------------------------------------------------------------------------
+
+def test_regression_parse_datetime_int_year():
+    """Test 1: parse_datetime(2024) returns 2024-01-01 (not 1970 Unix timestamp)."""
+    dt = parse_datetime(2024)
+    assert dt is not None
+    assert dt == datetime(2024, 1, 1, tzinfo=timezone.utc)
+
+
+def test_regression_parse_datetime_float_year():
+    """Test 2: parse_datetime(2024.0) returns 2024-01-01."""
+    dt = parse_datetime(2024.0)
+    assert dt is not None
+    assert dt == datetime(2024, 1, 1, tzinfo=timezone.utc)
+
+
+def test_regression_parse_datetime_unix_timestamp_preserved():
+    """Test 3: parse_datetime(1715900000) converts as Unix timestamp (2024-05-16)."""
+    dt = parse_datetime(1715900000)
+    assert dt is not None
+    assert dt.year == 2024
+    assert dt.month == 5
+
+
+
+def test_regression_extract_doc_datetime_publication_year():
+    """Test 4: extract_doc_datetime({"publication_year": 2024}) returns 2024-01-01."""
+    meta = {"publication_year": 2024}
+    dt = extract_doc_datetime(meta)
+    assert dt is not None
+    assert dt == datetime(2024, 1, 1, tzinfo=timezone.utc)
+
+
+def test_regression_extract_doc_datetime_year_key():
+    """Test 5: extract_doc_datetime({"year": 2024}) returns 2024-01-01."""
+    meta = {"year": 2024}
+    dt = extract_doc_datetime(meta)
+    assert dt is not None
+    assert dt == datetime(2024, 1, 1, tzinfo=timezone.utc)
+
+
+def test_regression_temporal_freshness_non_zero_for_2024():
+    """Test 6: Temporal Freshness score for a 2024 document is non-zero (0.026), not 0.0000."""
+    from langchain_core.documents import Document
+    from app.services.rrfe.extractors.temporal_freshness import TemporalFreshnessExtractor
+    
+    ext = TemporalFreshnessExtractor()
+    doc = Document(
+        page_content="Medical study",
+        metadata={"filename": "pubmed_doc.txt", "publication_year": 2024, "ingestion_date": "2026-08-06T00:00:00"}
+    )
+    result = ext.extract("query", [doc])
+    assert result.score is not None
+    assert result.score > 0.0, f"Expected non-zero freshness for 2024 doc, got {result.score}"
+    assert result.score == 0.026
+
+
+
+def test_regression_temporal_availability_no_1970_false_positive():
+    """Test 7: Temporal Availability correctly identifies Tier-A Available date for 2024-01-01 (not 1970)."""
+    from langchain_core.documents import Document
+    from app.services.rrfe.extractors.temporal_availability import TemporalAvailabilityExtractor
+    
+    ext = TemporalAvailabilityExtractor()
+    doc = Document(
+        page_content="Medical study",
+        metadata={"filename": "pubmed_doc.txt", "publication_year": 2024, "ingestion_date": "2026-08-06T00:00:00"}
+    )
+    result = ext.extract("query", [doc])
+    assert result.availability_status == "Available"
+    assert "Tier-A evidence" in result.reason
+    assert "1970" not in result.reason
+
+

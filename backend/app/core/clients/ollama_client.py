@@ -1,5 +1,7 @@
 import httpx
 from typing import Optional
+from ..config import global_config
+
 
 class OllamaHTTPClient:
     """
@@ -23,7 +25,7 @@ class OllamaHTTPClient:
         if kwargs:
             payload["options"] = kwargs
 
-        with httpx.Client(timeout=120.0) as client:
+        with httpx.Client(timeout=global_config.EVALUATOR_TIMEOUT) as client:
             response = client.post(self.generate_url, json=payload)
             response.raise_for_status()
             return response.json().get("response", "")
@@ -40,7 +42,8 @@ class OllamaHTTPClient:
         if kwargs:
             payload["options"] = kwargs
 
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=global_config.EVALUATOR_TIMEOUT) as client:
             response = await client.post(self.generate_url, json=payload)
             response.raise_for_status()
             return response.json().get("response", "")
+

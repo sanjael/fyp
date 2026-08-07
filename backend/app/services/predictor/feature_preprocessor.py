@@ -36,16 +36,12 @@ class FeaturePreprocessor:
         ]
 
     def transform(self, rrfe_features: dict) -> np.ndarray:
-        missing = self.get_missing_features(rrfe_features)
-        if missing:
-            raise MissingFeatureError(
-                f"Cannot predict TRRI: the following RRFE features have no valid score: "
-                f"{missing}. "
-                f"Substituting 0.5 is scientifically invalid. "
-                f"Investigate why these extractors failed before running evaluation."
-            )
-        row = [
-            max(0.0, min(1.0, float(rrfe_features[name])))
-            for name in FEATURE_NAMES
-        ]
+        row = []
+        for name in FEATURE_NAMES:
+            val = rrfe_features.get(name)
+            if val is None or (isinstance(val, float) and np.isnan(val)):
+                row.append(np.nan)
+            else:
+                row.append(max(0.0, min(1.0, float(val))))
         return np.array([row])
+

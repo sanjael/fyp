@@ -115,7 +115,15 @@ def _instantiate_metric(metric_cls, threshold: float = 0.5, model=None):
                 "id": [[getattr(test_case, 'id', '1')]],
             }
             dataset = Dataset.from_dict(data)
-            scores = evaluate(dataset, metrics=instance.metrics, llm=ragas_llm, embeddings=embeddings)
+            run_config = provider.get_ragas_run_config()
+            scores = evaluate(
+                dataset,
+                metrics=instance.metrics,
+                llm=ragas_llm,
+                embeddings=embeddings,
+                run_config=run_config,
+            )
+
             key = list(scores.keys())[0]
             val = scores[key]
             score = float(val) if val is not None else 0.0

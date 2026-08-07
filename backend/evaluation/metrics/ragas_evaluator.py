@@ -67,16 +67,23 @@ class RagasEvaluator:
     def __init__(self):
         if not RAGAS_AVAILABLE:
             return
-        provider = get_evaluator_provider()
-        # get_langchain_model() returns the raw LangChain model (ChatGroq, ChatOllama, etc.)
-        # Wrap it with ragas's own LangchainLLMWrapper so ragas controls retry/run_config.
-        self._llm = LangchainLLMWrapper(provider.get_langchain_model())
-        # get_embeddings() returns OllamaEmbeddings — a standard LangChain BaseEmbeddings.
-        # ragas 0.1.x wraps it internally with LangchainEmbeddingsWrapper.
+        self._provider = get_evaluator_provider()
+        self._llm = LangchainLLMWrapper(self._provider.get_langchain_model())
         self._embeddings = get_embeddings()
+        
+        # Explicitly assign embeddings & llm to answer_relevancy metric
+        answer_relevancy.embeddings = self._embeddings
+        answer_relevancy.llm = self._llm
+
         self._metrics = [context_precision, context_recall, faithfulness, answer_relevancy]
         if _ENTITY_RECALL:
             self._metrics.append(context_entity_recall)
+
+        self._run_config = self._provider.get_ragas_run_config()
+        logger.info(
+            f"Initialized RagasEvaluator [provider={self._provider.__class__.__name__}, "
+            f"concurrency={self._provider.max_concurrency}, timeout={self._provider.timeout}s]"
+        )
 
     def evaluate(self, result: PipelineResult) -> MetricResult:
         metric_result = MetricResult(sample_id=result.sample_id, pipeline=result.pipeline)
@@ -109,7 +116,9 @@ class RagasEvaluator:
                 metrics=self._metrics,
                 llm=self._llm,
                 embeddings=self._embeddings,
+                run_config=self._run_config,
             )
+
             metric_result.scores = {
                 "ragas_faithfulness":      _safe_float(scores.get("faithfulness")),
                 "ragas_answer_relevancy":  _safe_float(scores.get("answer_relevancy")),

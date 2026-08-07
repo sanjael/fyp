@@ -120,11 +120,37 @@ class RateLimiter:
                     break
 
 class EvaluatorProvider(ABC):
-    def __init__(self, model_name: str, rpm_limit: int = 30, tpm_limit: int = 5000):
+    def __init__(
+        self,
+        model_name: str,
+        rpm_limit: int = 30,
+        tpm_limit: int = 5000,
+        max_concurrency: int = 1,
+        max_retries: int = 3,
+        max_wait: float = 30.0,
+        timeout: float = 120.0,
+    ):
         self.model_name = model_name
+        self.max_concurrency = max_concurrency
+        self.max_retries = max_retries
+        self.max_wait = max_wait
+        self.timeout = timeout
         self.rate_limiter = RateLimiter(rpm_limit, tpm_limit)
         # Shared metrics state across calls (simple approach)
         self.total_metrics = EvaluationMetrics()
+
+    def get_ragas_run_config(self) -> Any:
+        """Returns a provider-aware RAGAS RunConfig object."""
+        try:
+            from ragas.run_config import RunConfig
+            return RunConfig(
+                max_workers=self.max_concurrency,
+                max_retries=self.max_retries,
+                max_wait=int(self.max_wait),
+                timeout=int(self.timeout),
+            )
+        except Exception:
+            return None
 
     @abstractmethod
     def get_langchain_model(self) -> Any:
@@ -145,6 +171,7 @@ class EvaluatorProvider(ABC):
         metrics = self.total_metrics.model_copy()
         self.total_metrics = EvaluationMetrics()
         return metrics
+
 
     def record_trace(self, prompt: str, latency: float, p_tokens: int, c_tokens: int, 
                      status: int, cache_status: str, retries: int):
@@ -190,7 +217,7 @@ class EvaluatorProvider(ABC):
         
         est_tokens = len(prompt) // 4 + 400
             
-        @retry(wait=wait_exponential(multiplier=1, min=2, max=60), stop=stop_after_attempt(20))
+        @retry(wait=wait_exponential(multiplier=1, min=2, max=30), stop=stop_after_attempt(5))
         def _call_with_retry():
             self.total_metrics.total_requests += 1
             wait_time = self.rate_limiter.wait(est_tokens)
@@ -250,7 +277,7 @@ class EvaluatorProvider(ABC):
         
         est_tokens = len(prompt) // 4 + 400
             
-        @retry(wait=wait_exponential(multiplier=1, min=2, max=60), stop=stop_after_attempt(20))
+        @retry(wait=wait_exponential(multiplier=1, min=2, max=30), stop=stop_after_attempt(5))
         async def _acall_with_retry():
             self.total_metrics.total_requests += 1
             wait_time = await self.rate_limiter.await_wait(est_tokens)
@@ -303,7 +330,7 @@ from langchain_core.outputs import ChatResult, ChatGeneration
 try:
     from deepeval.models.base_model import DeepEvalBaseLLM
     DEEPEVAL_AVAILABLE = True
-except ImportError:
+except Exception:
     DEEPEVAL_AVAILABLE = False
     class DeepEvalBaseLLM:
         pass

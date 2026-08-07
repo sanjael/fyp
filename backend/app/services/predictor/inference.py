@@ -32,30 +32,17 @@ class PredictorEngine:
     def predict(self, rrfe_features: dict, version: str = "latest") -> InferenceResponse:
         start_time = time.time()
 
-        # 1. Check for missing scientific features (Scientific Integrity Rule)
-        missing = self.preprocessor.get_missing_features(rrfe_features)
-        if missing:
-            latency_ms = (time.time() - start_time) * 1000
-            metadata = self.validator.build_metadata(latency_ms, version, [f"missing_features: {missing}"])
-            return InferenceResponse(
-                trri=None,
-                is_available=False,
-                missing_features=missing,
-                reason=f"Prediction unavailable: the following RRFE features have no valid score: {missing}. Substituting 0.5 is forbidden to maintain scientific validity.",
-                metadata=metadata,
-                shap_values=None,
-            )
+        # 1. Preprocess features (allows np.nan for missing temporal metadata)
+        features_array = self.preprocessor.transform(rrfe_features)
 
         # 2. Load model — raises ModelNotTrainedError if no trained model exists.
         model, actual_version = self._load_or_raise(version)
 
-        # 3. Preprocess features
-        features_array = self.preprocessor.transform(rrfe_features)
-
-        # 3. Predict
+        # 3. Predict with native missing value support
         if XGB_AVAILABLE:
             import xgboost as xgb
-            dmatrix = xgb.DMatrix(features_array)
+            import numpy as np
+            dmatrix = xgb.DMatrix(features_array, missing=np.nan)
             preds = model.predict(dmatrix)
             raw_trri = float(preds[0])
         else:
@@ -64,6 +51,7 @@ class PredictorEngine:
                 "XGBoost is not installed. "
                 "Install xgboost and train the TRRI model before running evaluation."
             )
+
 
         # 4. Validate & monitor
         safe_trri, drift_flags = self.validator.validate_prediction(raw_trri)

@@ -13,6 +13,7 @@ DOCUMENT_DATE_KEYS: List[str] = [
     "date",
     "published_date",
     "publication_date",
+    "publication_year",
     "created_at",
     "created_date",
     "timestamp",
@@ -49,7 +50,10 @@ def parse_datetime(val: Any) -> Optional[datetime]:
         return val.astimezone(timezone.utc)
 
     if isinstance(val, (int, float)):
+        if 1900 <= val <= 2100 and (isinstance(val, int) or val.is_integer()):
+            return datetime(int(val), 1, 1, tzinfo=timezone.utc)
         return _from_numeric_timestamp(val)
+
 
     val_str = str(val).strip()
     if not val_str or val_str.lower() in ("none", "null", "n/a", "unknown", ""):

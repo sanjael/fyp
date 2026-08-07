@@ -97,7 +97,16 @@ class StatisticalAnalyser:
     # ------------------------------------------------------------------
 
     def descriptive(self, values: List[float], metric: str, pipeline: str) -> DescriptiveStats:
-        arr = np.array([v for v in values if v is not None and not math.isnan(v)])
+        arr = []
+        for v in values:
+            if v is not None:
+                try:
+                    fv = float(v)
+                    if not math.isnan(fv):
+                        arr.append(fv)
+                except (ValueError, TypeError):
+                    pass
+        arr = np.array(arr)
         n = len(arr)
         if n == 0:
             return DescriptiveStats(metric, pipeline, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -126,8 +135,20 @@ class StatisticalAnalyser:
         baseline_scores: List[float],
         ragguard_scores: List[float],
     ) -> SignificanceResult:
-        b = np.array([v for v in baseline_scores if v is not None and not math.isnan(v)])
-        r = np.array([v for v in ragguard_scores if v is not None and not math.isnan(v)])
+        b_clean, r_clean = [], []
+        for bv, rv in zip(baseline_scores, ragguard_scores):
+            if bv is not None and rv is not None:
+                try:
+                    fbv, frv = float(bv), float(rv)
+                    if not math.isnan(fbv) and not math.isnan(frv):
+                        b_clean.append(fbv)
+                        r_clean.append(frv)
+                except (ValueError, TypeError):
+                    pass
+
+        b = np.array(b_clean)
+        r = np.array(r_clean)
+
 
         # Align lengths (use intersection of valid indices)
         min_len = min(len(b), len(r))
@@ -182,11 +203,18 @@ class StatisticalAnalyser:
         x_name: str,
         y_name: str,
     ) -> CorrelationResult:
-        pairs = [(x, y) for x, y in zip(x_values, y_values)
-                 if x is not None and y is not None
-                 and not math.isnan(x) and not math.isnan(y)]
+        pairs = []
+        for x, y in zip(x_values, y_values):
+            if x is not None and y is not None:
+                try:
+                    fx, fy = float(x), float(y)
+                    if not math.isnan(fx) and not math.isnan(fy):
+                        pairs.append((fx, fy))
+                except (ValueError, TypeError):
+                    pass
+
         if len(pairs) < 3:
-            return CorrelationResult(x_name, y_name, 0, 1, 0, 1, len(pairs))
+            return CorrelationResult(x_name, y_name, 0.0, 1.0, 0.0, 1.0, len(pairs))
         xs, ys = zip(*pairs)
         pr, pp = stats.pearsonr(xs, ys)
         sr, sp = stats.spearmanr(xs, ys)
@@ -196,6 +224,7 @@ class StatisticalAnalyser:
             spearman_r=round(float(sr), 4), spearman_p=round(float(sp), 6),
             n=len(pairs),
         )
+
 
     # ------------------------------------------------------------------
     # RRFE feature importance (Spearman correlation with TRRI)

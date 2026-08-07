@@ -13,10 +13,12 @@ from typing import Dict
 
 REGISTRY: Dict[str, BenchmarkDatasetLoader] = {
     "hotpotqa":         HotpotQALoader(),
+    "pubmedqa":         RAGBenchLoader(),
     "natural_questions": NaturalQuestionsLoader(),
     "ragbench":         RAGBenchLoader(),
     "expertqa":         ExpertQALoader(),
 }
+
 
 
 def get_loader(name: str) -> BenchmarkDatasetLoader:

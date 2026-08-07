@@ -1,6 +1,6 @@
 # Dataset Validation Report: RAGGuard-TR
 
-**Generated Path**: `E:\fyp\backend\exported_datasets\training_dataset.csv`  
+**Generated Path**: `C:\Users\VIJAY SALVATORE\Desktop\fyp\backend\exported_datasets\training_dataset.csv`  
 **Total Samples**: 1000  
 **Dataset Breakdown**: {'pubmedqa': 500, 'hotpotqa': 500}  
 
@@ -10,12 +10,12 @@
 
 | Feature | Mean | Std | Min | Max | Median |
 |---|---|---|---|---|---|
-| temporal_freshness | 0.2307 | 0.2506 | 0.0000 | 1.0000 | 0.0000 |
-| temporal_availability | 0.2690 | 0.2514 | 0.0000 | 1.0000 | 0.5000 |
-| source_credibility | 0.4500 | 0.0000 | 0.4500 | 0.4500 | 0.4500 |
-| evidence_consistency | 0.7202 | 0.0859 | 0.4869 | 0.9283 | 0.7298 |
-| evidence_sufficiency | 0.7733 | 0.0691 | 0.5660 | 0.9295 | 0.7777 |
-| trri | 0.7520 | 0.0708 | 0.5569 | 0.9062 | 0.7589 |
+| temporal_freshness | 0.0260 | 0.0000 | 0.0260 | 0.0260 | 0.0260 |
+| temporal_availability | 1.0000 | 0.0000 | 1.0000 | 1.0000 | 1.0000 |
+| source_credibility | 0.8700 | 0.0700 | 0.8000 | 0.9400 | 0.8700 |
+| evidence_consistency | 0.7429 | 0.0715 | 0.4996 | 0.9159 | 0.7483 |
+| evidence_sufficiency | 0.7626 | 0.0814 | 0.4201 | 0.9218 | 0.7730 |
+| trri | 0.7547 | 0.0671 | 0.4984 | 0.9011 | 0.7595 |
 
 ---
 
@@ -44,12 +44,12 @@
 
 |                       |   temporal_freshness |   temporal_availability |   source_credibility |   evidence_consistency |   evidence_sufficiency |     trri |
 |:----------------------|---------------------:|------------------------:|---------------------:|-----------------------:|-----------------------:|---------:|
-| temporal_freshness    |               1      |                 -0.9673 |                  nan |                 0.4578 |                 0.4767 |   0.5011 |
-| temporal_availability |              -0.9673 |                  1      |                  nan |                -0.4612 |                -0.4781 |  -0.5036 |
-| source_credibility    |             nan      |                nan      |                  nan |               nan      |               nan      | nan      |
-| evidence_consistency  |               0.4578 |                 -0.4612 |                  nan |                 1      |                 0.7431 |   0.9202 |
-| evidence_sufficiency  |               0.4767 |                 -0.4781 |                  nan |                 0.7431 |                 1      |   0.9458 |
-| trri                  |               0.5011 |                 -0.5036 |                  nan |                 0.9202 |                 0.9458 |   1      |
+| temporal_freshness    |                  nan |                     nan |             nan      |               nan      |               nan      | nan      |
+| temporal_availability |                  nan |                     nan |             nan      |               nan      |               nan      | nan      |
+| source_credibility    |                  nan |                     nan |               1      |                 0.3671 |                 0.2721 |   0.3543 |
+| evidence_consistency  |                  nan |                     nan |               0.3671 |                 1      |                 0.467  |   0.7657 |
+| evidence_sufficiency  |                  nan |                     nan |               0.2721 |                 0.467  |                 1      |   0.9264 |
+| trri                  |                  nan |                     nan |               0.3543 |                 0.7657 |                 0.9264 |   1      |
 
 ---
 
@@ -57,9 +57,9 @@
 
 | Risk Level | Range | Sample Count | Percentage |
 |---|---|---|---|
-| **High Risk** | TRRI < 0.5 | 0 | 0.0% |
-| **Medium Risk** | 0.5 ≤ TRRI < 0.8 | 713 | 71.3% |
-| **Low Risk** | TRRI ≥ 0.8 | 287 | 28.7% |
+| **High Risk** | TRRI < 0.5 | 1 | 0.1% |
+| **Medium Risk** | 0.5 ≤ TRRI < 0.8 | 726 | 72.6% |
+| **Low Risk** | TRRI ≥ 0.8 | 273 | 27.3% |
 
 ---
 

@@ -5,6 +5,8 @@ from langchain_core.outputs import ChatResult, ChatGeneration
 from .ollama_client import OllamaHTTPClient
 from .groq_client import GroqHTTPClient
 
+from app.core.json_repair import clean_json_text
+
 class OllamaChatAdapter(BaseChatModel):
     """
     A lightweight adapter that bridges the official OllamaHTTPClient to LangChain's BaseChatModel interface.
@@ -19,8 +21,6 @@ class OllamaChatAdapter(BaseChatModel):
         self.client = OllamaHTTPClient(base_url=self.base_url)
 
     def _format_messages(self, messages: List[BaseMessage]) -> str:
-        # Simplified concatenation for evaluator prompts
-        # RAGAS typically passes a single HumanMessage with the entire prompt
         return "\n".join([m.content for m in messages if hasattr(m, 'content')])
 
     def _generate(
@@ -31,7 +31,14 @@ class OllamaChatAdapter(BaseChatModel):
         **kwargs: Any,
     ) -> ChatResult:
         prompt = self._format_messages(messages)
+        is_json = "json" in prompt.lower()
+        if is_json:
+            kwargs["format"] = "json"
+
         response_text = self.client.generate(model=self.model_name, prompt=prompt, **kwargs)
+        if is_json:
+            response_text = clean_json_text(response_text)
+            response_text = normalize_ragas_json(response_text)
         
         message = AIMessage(content=response_text)
         generation = ChatGeneration(message=message)
@@ -45,7 +52,14 @@ class OllamaChatAdapter(BaseChatModel):
         **kwargs: Any,
     ) -> ChatResult:
         prompt = self._format_messages(messages)
+        is_json = "json" in prompt.lower()
+        if is_json:
+            kwargs["format"] = "json"
+
         response_text = await self.client.agenerate(model=self.model_name, prompt=prompt, **kwargs)
+        if is_json:
+            response_text = clean_json_text(response_text)
+            response_text = normalize_ragas_json(response_text)
         
         message = AIMessage(content=response_text)
         generation = ChatGeneration(message=message)
@@ -54,6 +68,106 @@ class OllamaChatAdapter(BaseChatModel):
     @property
     def _llm_type(self) -> str:
         return "custom_ollama_adapter"
+
+
+def normalize_ragas_json(response_text: str) -> str:
+    """
+    Normalizes JSON responses from evaluator LLMs (Groq / Ollama) to satisfy RAGAS 0.1.x Pydantic schema validation:
+    1. Preserves statement generation output: {'statements': ['A', 'B']}
+    2. Renames statement_1, statement_2, etc. keys to 'statement'
+    3. Normalizes verdict fields to integers (1, 0, -1)
+    4. Preserves noncommittal and custom object schemas
+    5. Normalizes root dicts/lists into lists for verification RootModels
+    6. Logs ORIGINAL JSON and NORMALIZED JSON to groq_debug.log if modified
+    """
+    import json
+    import re
+
+    try:
+        data = json.loads(response_text)
+        original_data = json.dumps(data)
+
+        # Helper 1: Rename statement_X -> statement and normalize verdicts recursively
+        def process_item(item):
+            if isinstance(item, dict):
+                new_dict = {}
+                for k, v in item.items():
+                    # Rename statement_1, statement_2, etc. to 'statement'
+                    new_key = "statement" if re.match(r"^statement_\d+$", k, re.IGNORECASE) else k
+
+                    if isinstance(v, (dict, list)):
+                        processed_v = process_item(v)
+                    elif new_key.lower() in ("verdict", "faithful", "answer_is_correct", "is_relevant"):
+                        s_val = str(v).strip().lower()
+                        if s_val in ("1", "yes", "true"):
+                            processed_v = 1
+                        elif s_val in ("0", "no", "false"):
+                            processed_v = 0
+                        elif s_val in ("-1", "-1.0", "null", "nil", "none"):
+                            processed_v = -1
+                        elif isinstance(v, (int, float)):
+                            processed_v = int(v)
+                        else:
+                            processed_v = v
+                    else:
+                        processed_v = v
+
+                    new_dict[new_key] = processed_v
+                return new_dict
+            elif isinstance(item, list):
+                return [process_item(elem) for elem in item]
+            return item
+
+        processed = process_item(data)
+
+        # Helper 2: Handle root JSON structure
+        if isinstance(processed, dict):
+            # Preserve statement generation output: {'statements': ['A', 'B']}
+            if "statements" in processed and isinstance(processed["statements"], list):
+                if not processed["statements"] or isinstance(processed["statements"][0], str):
+                    data_to_return = processed
+                else:
+                    # If 'statements' contains dict items, unwrap to list
+                    data_to_return = processed["statements"]
+            # Preserve question / noncommittal output: {'question': '...', 'noncommittal': 1}
+            elif "question" in processed and "noncommittal" in processed:
+                data_to_return = processed
+            # Unwrap dict containing single list of dicts: {'verifications': [{...}], ...}
+            elif len(processed) == 1 and isinstance(list(processed.values())[0], list):
+                val_list = list(processed.values())[0]
+                if val_list and isinstance(val_list[0], dict):
+                    data_to_return = val_list
+                else:
+                    data_to_return = processed
+            # Wrap single verification object into list: {'statement': '...', 'reason': '...', 'verdict': 0}
+            elif ("reason" in processed and "verdict" in processed) or ("statement" in processed and "verdict" in processed):
+                data_to_return = [processed]
+            else:
+                data_to_return = processed
+        else:
+            data_to_return = processed
+
+        normalized_str = json.dumps(data_to_return)
+
+        # Log original and normalized JSON if modified
+        if normalized_str != response_text and original_data != normalized_str:
+            try:
+                with open("groq_debug.log", "a", encoding="utf-8") as f:
+                    f.write(
+                        f"\n[NORMALIZER MODIFIED OUTPUT]\n"
+                        f"ORIGINAL JSON:\n{response_text}\n"
+                        f"NORMALIZED JSON:\n{normalized_str}\n"
+                        f"{'='*50}\n"
+                    )
+            except Exception:
+                pass
+
+        return normalized_str
+    except json.JSONDecodeError:
+        pass
+
+    return response_text
+
 
 class GroqChatAdapter(BaseChatModel):
     """
@@ -80,49 +194,13 @@ class GroqChatAdapter(BaseChatModel):
                 converted.append({"role": "assistant", "content": m.content})
             else:
                 converted.append({"role": "user", "content": m.content})
-        return converted
-
     def _normalize_json_response(self, response_text: str) -> str:
-        """
-        Normalizes known binary verdict fields from integer (0/1) to string ("no"/"yes")
-        to satisfy RAGAS schema expectations.
-        """
-        import json
-        try:
-            data = json.loads(response_text)
-            modified = False
-            
-            def normalize_dict(d: dict):
-                nonlocal modified
-                for k, v in d.items():
-                    if isinstance(v, dict):
-                        normalize_dict(v)
-                    elif isinstance(v, list):
-                        for item in v:
-                            if isinstance(item, dict):
-                                normalize_dict(item)
-                    elif k.lower() in ["verdict", "faithful", "answer_is_correct", "is_relevant"]:
-                        if v == 1 or v == "1":
-                            d[k] = "yes"
-                            modified = True
-                        elif v == 0 or v == "0":
-                            d[k] = "no"
-                            modified = True
-                            
-            if isinstance(data, dict):
-                normalize_dict(data)
-            elif isinstance(data, list):
-                for item in data:
-                    if isinstance(item, dict):
-                        normalize_dict(item)
-                        
-            if modified:
-                return json.dumps(data)
-                
-        except json.JSONDecodeError:
-            pass
-            
-        return response_text
+        return normalize_ragas_json(response_text)
+
+
+
+
+
 
     def _generate(
         self,
@@ -147,7 +225,7 @@ class GroqChatAdapter(BaseChatModel):
         if is_json:
             try:
                 json.loads(response_text)
-                response_text = self._normalize_json_response(response_text)
+                response_text = normalize_ragas_json(response_text)
             except json.JSONDecodeError as e:
                 raise Exception(
                     f"Invalid JSON response from Groq.\n"
@@ -156,6 +234,7 @@ class GroqChatAdapter(BaseChatModel):
                     f"Raw response: {response_text}\n"
                     f"Error: {e}"
                 )
+
         
         message = AIMessage(content=response_text)
         generation = ChatGeneration(message=message)
@@ -184,7 +263,7 @@ class GroqChatAdapter(BaseChatModel):
         if is_json:
             try:
                 json.loads(response_text)
-                response_text = self._normalize_json_response(response_text)
+                response_text = normalize_ragas_json(response_text)
             except json.JSONDecodeError as e:
                 raise Exception(
                     f"Invalid JSON response from Groq.\n"
@@ -193,6 +272,7 @@ class GroqChatAdapter(BaseChatModel):
                     f"Raw response: {response_text}\n"
                     f"Error: {e}"
                 )
+
         
         message = AIMessage(content=response_text)
         generation = ChatGeneration(message=message)
