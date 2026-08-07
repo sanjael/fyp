@@ -87,14 +87,15 @@ def _instantiate_metric(metric_cls, threshold: float = 0.5, model=None):
         logger.warning(f"Failed to instantiate {metric_cls}: {e}")
         return None
 
-    if hasattr(instance, "metrics") and getattr(instance, "metrics", None) is None:
-        try:
-            from ragas.metrics import context_precision
-            instance.metrics = [context_precision]
-        except Exception:
-            pass
+    if hasattr(instance, "metrics") or "Ragas" in instance.__class__.__name__:
+        if not getattr(instance, "metrics", None):
+            try:
+                from ragas.metrics import context_precision
+                instance.metrics = [context_precision]
+            except Exception:
+                instance.metrics = []
 
-    if hasattr(instance, "metrics") and getattr(instance, "metrics", None) is not None:
+    if hasattr(instance, "metrics") or hasattr(instance, "measure"):
         def custom_measure(test_case):
             from ragas import evaluate
             from ragas.llms import LangchainLLMWrapper
@@ -106,19 +107,24 @@ def _instantiate_metric(metric_cls, threshold: float = 0.5, model=None):
             ragas_llm = LangchainLLMWrapper(provider.get_langchain_model())
             embeddings = get_embeddings()
 
+            metrics_to_use = getattr(instance, "metrics", None)
+            if not metrics_to_use:
+                from ragas.metrics import context_precision
+                metrics_to_use = [context_precision]
+                instance.metrics = metrics_to_use
+
             ctx = test_case.context if getattr(test_case, 'context', None) is not None else getattr(test_case, 'retrieval_context', [])
             data = {
-                "ground_truths": [[test_case.expected_output]],
+                "ground_truth": [test_case.expected_output],
                 "contexts": [ctx],
                 "question": [test_case.input],
                 "answer": [test_case.actual_output],
-                "id": [[getattr(test_case, 'id', '1')]],
             }
             dataset = Dataset.from_dict(data)
             run_config = provider.get_ragas_run_config()
             scores = evaluate(
                 dataset,
-                metrics=instance.metrics,
+                metrics=metrics_to_use,
                 llm=ragas_llm,
                 embeddings=embeddings,
                 run_config=run_config,
@@ -132,6 +138,7 @@ def _instantiate_metric(metric_cls, threshold: float = 0.5, model=None):
             return score
 
         instance.measure = custom_measure
+
 
     return instance
 

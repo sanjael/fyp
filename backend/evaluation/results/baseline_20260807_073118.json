@@ -1,0 +1,118 @@
+[
+  {
+    "sample_id": "pubmedqa_39085",
+    "question": "Is there a functional neural correlate of individual differences in cardiovascular reactivity?",
+    "ground_truth_answer": "Yes, the study mentioned in the first piece of context tested whether individuals who differ in the magnitude of their blood pressure reactions to a behavioral stressor also differ in their stressor-induced patterns of functional neural activation. This suggests that there may be a functional neural correlate of individual differences in cardiovascular reactivity.",
+    "gold_contexts": [
+      "The present study tested whether individuals who differ in the magnitude of their blood pressure reactions to a behavioral stressor also differ in their stressor-induced patterns of functional neural activation.",
+      "This study examined whether heightened cardiovascular reactivity and low socioeconomic status had synergistic effects on the progression of carotid atherosclerosis in a population of eastern Finnish men.",
+      "Heart rate variability (HRV), a measure of autonomic function, has been associated with cognitive function, but studies are conflicting. Previous studies have also not controlled for familial and genetic influences.",
+      "Low socioeconomic status is associated with increased cardiovascular disease risk. We hypothesized that psychobiological pathways, specifically slow recovery in blood pressure and heart rate variability following mental stress, partly mediate social inequalities in risk.",
+      "Does background stress heighten or dampen children's cardiovascular responses to acute stress?"
+    ],
+    "retrieved_contexts": [
+      "The present study tested whether individuals who differ in the magnitude of their blood pressure reactions to a behavioral stressor also differ in their stressor-induced patterns of functional neural activation.",
+      "Heart rate variability (HRV), a measure of autonomic function, has been associated with cognitive function, but studies are conflicting. Previous studies have also not controlled for familial and genetic influences.",
+      "This study examined whether heightened cardiovascular reactivity and low socioeconomic status had synergistic effects on the progression of carotid atherosclerosis in a population of eastern Finnish men."
+    ],
+    "retrieved_doc_metadata": [
+      {
+        "chunk_index": 0,
+        "filename": "eval_doc.txt",
+        "ingestion_date": "2026-08-07T11:53:57.535102"
+      },
+      {
+        "chunk_index": 0,
+        "filename": "eval_doc.txt",
+        "ingestion_date": "2026-08-07T11:53:57.535102"
+      },
+      {
+        "chunk_index": 0,
+        "filename": "eval_doc.txt",
+        "ingestion_date": "2026-08-07T11:53:57.535102"
+      }
+    ],
+    "generated_answer": "Based on the context provided, the present study tested whether individuals who differ in the magnitude of their blood pressure reactions to a behavioral stressor also differ in their stressor-induced patterns of functional neural activation. Therefore, it can be inferred that there is an implication or hypothesis suggesting there might be a functional neural correlate of individual differences in cardiovascular reactivity. However, the context does not explicitly state the findings or results of the study, only that such a relationship was being investigated.",
+    "rrfe_features": null,
+    "rrfe_explanations": null,
+    "trri": null,
+    "risk_level": null,
+    "predictor_model_version": null,
+    "retrieval_latency_ms": 2089.3289999985427,
+    "rrfe_latency_ms": 0.0,
+    "predictor_latency_ms": 0.0,
+    "generation_latency_ms": 23910.708400000658,
+    "total_latency_ms": 28984.87059999934,
+    "pipeline": "baseline",
+    "dataset_name": "ragbench",
+    "error": null,
+    "ragas_faithfulness": 0.6666666666666666,
+    "ragas_answer_relevancy": 0.0,
+    "ragas_context_precision": null,
+    "ragas_context_recall": 1.0,
+    "ragas_context_entity_recall": 0.49999999875,
+    "deepeval_faithfulness": 0.6666666666666666,
+    "deepeval_answer_relevancy": 0.8157845139503479,
+    "deepeval_hallucination": null,
+    "deepeval_contextual_precision": null,
+    "deepeval_contextual_recall": 1.0
+  },
+  {
+    "sample_id": "pubmedqa_42813",
+    "question": "Can we use the Omron T9P automated blood pressure monitor in pregnancy?",
+    "ground_truth_answer": "Yes, based on the context provided, we can use the Omron T9P automated blood pressure monitor in pregnancy. The study mentioned tested the accuracy of the Omron T9P device in pregnant women, comparing its readings to mercury sphygmomanometry, which is considered the gold standard. The device received a good grade in terms of accuracy according to testing processes set by the British Hypertension Society (BHS) and the Association for the Advancement of Medical Instrumentation (AAMI).",
+    "gold_contexts": [
+      "Recent events in our hospital, combined with international recommendations, catalyzed the need to move from mercury sphygmomanometry to automated blood pressure (BP) recording in pregnancy.AIM: To test the accuracy of the Omron T9P automated BP recorder in pregnant women, using mercury sphygmomanometry as the gold standard.",
+      "The purpose of this study was to investigate the relationship between blood pressure that is measured with the automated blood pressure monitor, Omron HEM-705CP (Omron Corporation, Tokyo, Japan), and mercury sphygmomanometry in normotensive and preeclamptic pregnant women.",
+      "Healthy pregnant women (n = 101 women) underwent mercury and home Omron HEM-705CP monitor blood pressure measurements at 10 to 14, 19 to 22, 27 to 30, and 35 to 37 weeks of gestation and 5 to 9 weeks after delivery. After routine mercury blood pressure recordings that were taken by midwives, women with preeclampsia (n = 45 women) measured their own blood pressure using an Omron HEM-705CP monitor (n = 212 recordings). In the longitudinal cohort, mean +/- 2 SD were calculated for blood pressure levels throughout pregnancy. Individual variation in home Omron minus office mercury throughout pregnancy was determined. In preeclampsia, back-to-back blood pressure measurements by the two methods were correlated and quantified as being within 5, 10, and 15 mm Hg. Bland-Altman plots were calculated, and the sensitivity of the Omron HEM-705CP monitor to detect hypertension that was identified by mercury sphygmomanometry was evaluated.",
+      "Differences in both systolic and diastolic BP between the T9P Omron device and mercury sphygmomanometer were obtained for each woman, using sequential automated and mercury BP recordings, as required by a modified British Hypertension Society (BHS) protocol. The accuracy of the device was graded according to the BHS and the Association for the Advancement of Medical Instrumentation (AAMI) standards.",
+      "The Omron T9P device received an A/A grade according to this modified BHS and AAMI testing process, though the range of the 255 differences was 1-13 for systolic BP and 1-10 for diastolic BP."
+    ],
+    "retrieved_contexts": [
+      "Recent events in our hospital, combined with international recommendations, catalyzed the need to move from mercury sphygmomanometry to automated blood pressure (BP) recording in pregnancy.AIM: To test the accuracy of the Omron T9P automated BP recorder in pregnant women, using mercury sphygmomanometry as the gold standard.",
+      "The purpose of this study was to investigate the relationship between blood pressure that is measured with the automated blood pressure monitor, Omron HEM-705CP (Omron Corporation, Tokyo, Japan), and mercury sphygmomanometry in normotensive and preeclamptic pregnant women.",
+      "Healthy pregnant women (n = 101 women) underwent mercury and home Omron HEM-705CP monitor blood pressure measurements at 10 to 14, 19 to 22, 27 to 30, and 35 to 37 weeks of gestation and 5 to 9 weeks after delivery. After routine mercury blood pressure recordings that were taken by midwives, women with preeclampsia (n = 45 women) measured their own blood pressure using an Omron HEM-705CP monitor (n = 212 recordings). In the longitudinal cohort, mean +/- 2 SD were calculated for blood pressure levels throughout pregnancy. Individual variation in home Omron minus office mercury throughout pregnancy was determined. In preeclampsia, back-to-back blood pressure measurements by the two methods were correlated and quantified as being within 5, 10, and 15 mm Hg. Bland-Altman plots were calculated, and the sensitivity of the Omron HEM-705CP monitor to detect hypertension that was identified by mercury sphygmomanometry was evaluated."
+    ],
+    "retrieved_doc_metadata": [
+      {
+        "chunk_index": 0,
+        "filename": "eval_doc.txt",
+        "ingestion_date": "2026-08-07T12:33:24.839664"
+      },
+      {
+        "chunk_index": 0,
+        "filename": "eval_doc.txt",
+        "ingestion_date": "2026-08-07T12:33:24.839664"
+      },
+      {
+        "chunk_index": 0,
+        "filename": "eval_doc.txt",
+        "ingestion_date": "2026-08-07T12:33:24.839664"
+      }
+    ],
+    "generated_answer": "Based on the provided context, we can test the accuracy of the Omron T9P automated blood pressure recorder in pregnant women using mercury sphygmomanometry as a reference. The study aimed to investigate the relationship between blood pressures measured with the Omron HEM-705CP monitor and mercury sphygmomanometry in both normotensive and preeclamptic pregnant women. Therefore, it suggests that the Omron T9P automated blood pressure monitor can be used in pregnancy; however, its accuracy needs to be validated through comparison with traditional mercury sphygmomanometry as demonstrated in this study.",
+    "rrfe_features": null,
+    "rrfe_explanations": null,
+    "trri": null,
+    "risk_level": null,
+    "predictor_model_version": null,
+    "retrieval_latency_ms": 2097.098400001414,
+    "rrfe_latency_ms": 0.0,
+    "predictor_latency_ms": 0.0,
+    "generation_latency_ms": 69150.9326000014,
+    "total_latency_ms": 75341.74910000002,
+    "pipeline": "baseline",
+    "dataset_name": "ragbench",
+    "error": null,
+    "ragas_faithfulness": null,
+    "ragas_answer_relevancy": 0.8124740573070225,
+    "ragas_context_precision": null,
+    "ragas_context_recall": 0.6666666666666666,
+    "ragas_context_entity_recall": 0.1999999996,
+    "deepeval_faithfulness": 1.0,
+    "deepeval_answer_relevancy": 0.8414729833602905,
+    "deepeval_hallucination": null,
+    "deepeval_contextual_precision": null,
+    "deepeval_contextual_recall": 0.6666666666666666
+  }
+]
